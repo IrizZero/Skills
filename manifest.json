@@ -1,0 +1,38 @@
+{
+  "name": "claude-config-backup",
+  "description": "Portable backup of personal Claude Code skills, agents, slash commands, and plugin/hook config. An agent installs this onto any box's ~/.claude.",
+  "claudeHome": "~/.claude",
+  "additive": [
+    { "src": "skills",   "dest": "skills",   "type": "dir", "note": "one folder per skill" },
+    { "src": "agents",   "dest": "agents",   "type": "dir", "note": "one *.md per subagent" },
+    { "src": "commands", "dest": "commands", "type": "dir", "note": "one *.md per slash command" }
+  ],
+  "mergeSettings": {
+    "src": "settings.json",
+    "dest": "settings.json",
+    "mergeKeys": ["enabledPlugins", "extraKnownMarketplaces", "statusLine"],
+    "preserveTargetKeys": ["model", "permissions", "effortLevel"],
+    "notes": "MERGE, do not overwrite. statusLine holds a box-specific plugin-cache path with a version hash and a Windows path; drop it if it does not resolve on the target. Caveman hook + statusline come from the caveman@caveman marketplace plugin declared here — they reinstall after a Claude Code restart."
+  },
+  "handsOff": [
+    {
+      "src": "CLAUDE.md",
+      "note": "Global instructions are personal per-box (identity, token-rotation dates, absolute paths). Do NOT auto-overwrite. Copy to CLAUDE.md.from-repo beside target and let the agent/user diff+merge."
+    }
+  ],
+  "counts": { "skills": 14, "agents": 5, "commands": 1 },
+  "skills": [
+    "brain-to-docs", "database-expert", "decisions", "folder-specific-claude-and-agents-md",
+    "handoff", "plan-reviewer", "research-prompt", "setup-help", "solution-auditor",
+    "stress-test", "teach", "ui-ux-advisor", "ui-ux-init", "yagni-guardian"
+  ],
+  "agents": [
+    "plan-reviewer.md", "solution-auditor.md", "ui-ux-advisor.md", "ui-ux-init.md", "yagni-guardian.md"
+  ],
+  "commands": ["pipeline_zoho-ops.md"],
+  "notSynced": [
+    ".credentials.json", "*.key", "*.pem", ".env",
+    "plugins/ (binaries reinstall from marketplace)",
+    "session state (projects/ sessions/ tasks/ telemetry/ shell-snapshots/ file-history/)"
+  ]
+}

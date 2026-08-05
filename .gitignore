@@ -1,0 +1,21 @@
+# Secrets — never commit
+.credentials.json
+**/.credentials.json
+*.key
+*.pem
+.env
+**/.env
+
+# Local, per-checkout Claude settings (do not sync)
+.claude/settings.local.json
+
+# Install-time backups created by install.ps1 / install.sh
+*.bak-*
+
+# Python bytecode (from skill scripts)
+__pycache__/
+*.pyc
+
+# OS cruft
+Thumbs.db
+.DS_Store
