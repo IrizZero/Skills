@@ -1,0 +1,60 @@
+{
+  "skill_name": "plan-reviewer",
+  "notes": "Eval target is the plan-reviewer SUBAGENT (the review intelligence). With-skill arm dispatches subagent_type=plan-reviewer; baseline arm dispatches general-purpose with a plain 'review this plan' ask. Each fixture is a self-contained mini-codebase + plan.md with a known planted outcome.",
+  "evals": [
+    {
+      "id": 0,
+      "name": "caller-breakage",
+      "prompt": "Review the implementation plan at skills/plan-reviewer/fixtures/caller-breakage/plan.md against the code in skills/plan-reviewer/fixtures/caller-breakage/. Surface any problems before I start coding.",
+      "expected_output": "A Blocker: the plan renames/changes the signature of validate_token but lists only src/auth.py as affected, while src/api.py and src/middleware.py both import and call validate_token -> caller breakage. Output follows the strict schema.",
+      "files": [
+        "skills/plan-reviewer/fixtures/caller-breakage/plan.md",
+        "skills/plan-reviewer/fixtures/caller-breakage/src/auth.py",
+        "skills/plan-reviewer/fixtures/caller-breakage/src/api.py",
+        "skills/plan-reviewer/fixtures/caller-breakage/src/middleware.py"
+      ],
+      "assertions": [
+        {"name": "schema_present", "text": "Output contains '## Findings', '### Blockers', '### Warnings', '### Suggestions', and '## Context inspected' headers."},
+        {"name": "finding_tag_format", "text": "Every finding bullet matches the regex ^- \\[(B|W|S)\\d+\\]."},
+        {"name": "no_fabricated_refs", "text": "Every file path cited in a finding exists in the fixture (auth.py, api.py, middleware.py); no invented paths."},
+        {"name": "blocker_present", "text": "At least one Blocker [B*] is raised."},
+        {"name": "caller_breakage_identified", "text": "A finding references api.py and/or middleware.py as the broken callers of validate_token."}
+      ]
+    },
+    {
+      "id": 1,
+      "name": "clean-plan",
+      "prompt": "Review the implementation plan at skills/plan-reviewer/fixtures/clean-plan/plan.md against the code in skills/plan-reviewer/fixtures/clean-plan/. Surface any problems before I start coding.",
+      "expected_output": "No Blockers and no Warnings. The plan adds a brand-new subtract() with no callers and includes a test. Ideally zero findings (anti-padding); at most a minor Suggestion. Output follows the strict schema.",
+      "files": [
+        "skills/plan-reviewer/fixtures/clean-plan/plan.md",
+        "skills/plan-reviewer/fixtures/clean-plan/src/calc.py",
+        "skills/plan-reviewer/fixtures/clean-plan/tests/test_calc.py"
+      ],
+      "assertions": [
+        {"name": "schema_present", "text": "Output contains '## Findings', '### Blockers', '### Warnings', '### Suggestions', and '## Context inspected' headers."},
+        {"name": "finding_tag_format", "text": "Every finding bullet matches the regex ^- \\[(B|W|S)\\d+\\]."},
+        {"name": "no_blockers_or_warnings", "text": "Zero Blockers [B*] and zero Warnings [W*] are raised on this clean plan."},
+        {"name": "lean_not_padded", "text": "At most one finding total (Suggestion) — the reviewer does not pad a clean plan to look thorough."}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "path-traversal",
+      "prompt": "Review the implementation plan at skills/plan-reviewer/fixtures/path-traversal/plan.md against the code in skills/plan-reviewer/fixtures/path-traversal/. Surface any problems before I start coding.",
+      "expected_output": "A security finding tagged 'severity-override: security': removing os.path.basename and joining the user-supplied name directly enables path traversal (e.g. ?name=../../etc/passwd). References src/files.py. Output follows the strict schema.",
+      "files": [
+        "skills/plan-reviewer/fixtures/path-traversal/plan.md",
+        "skills/plan-reviewer/fixtures/path-traversal/src/files.py",
+        "skills/plan-reviewer/fixtures/path-traversal/src/routes.py"
+      ],
+      "assertions": [
+        {"name": "schema_present", "text": "Output contains '## Findings', '### Blockers', '### Warnings', '### Suggestions', and '## Context inspected' headers."},
+        {"name": "finding_tag_format", "text": "Every finding bullet matches the regex ^- \\[(B|W|S)\\d+\\]."},
+        {"name": "no_fabricated_refs", "text": "Every file path cited in a finding exists in the fixture (files.py, routes.py); no invented paths."},
+        {"name": "security_tagged", "text": "At least one finding carries the 'severity-override: security' tag."},
+        {"name": "traversal_location_identified", "text": "A finding references src/files.py as the path-traversal site (basename removal / direct join of user input)."}
+      ]
+    }
+  ]
+}

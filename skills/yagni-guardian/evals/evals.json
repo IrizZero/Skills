@@ -1,0 +1,62 @@
+{
+  "skill_name": "yagni-guardian",
+  "notes": "Eval target is the yagni-guardian SUBAGENT (the audit intelligence). With-skill arm dispatches subagent_type=yagni-guardian; baseline arm dispatches general-purpose with a plain 'check this plan for over-engineering' ask. Each fixture is a self-contained plan.md + spec.md with a known planted outcome. The plan's affected files are creations/modifications under src/ that do NOT exist on disk — the subagent must skip them without erroring and audit the plan + spec text. Smoke-run results recorded in fixtures/test-log.md (Tasks 7/8/9 PASS, 2026-05-29).",
+  "evals": [
+    {
+      "id": 0,
+      "name": "clean-plan",
+      "prompt": "Run a YAGNI audit on the implementation plan at skills/yagni-guardian/fixtures/clean-plan.md. Its spec is skills/yagni-guardian/fixtures/clean-spec.md. The affected files (src/text/slugify.ts, src/text/slugify.test.ts) are created by the plan and don't exist on disk yet — skip them without erroring. Flag any over-engineering before I start coding.",
+      "expected_output": "Tier=NONE, 0 findings. The plan adds one plain slugify function with a direct test and one named caller — no abstraction, no config, no scope creep. Y2 must NOT be flagged (the plan provides a test targeting slugify directly and exports it as public API). Y4 status=scored (spec resolved). Output follows the strict schema and ends with the sentinel.",
+      "files": [
+        "skills/yagni-guardian/fixtures/clean-plan.md",
+        "skills/yagni-guardian/fixtures/clean-spec.md"
+      ],
+      "assertions": [
+        {"name": "schema_present", "text": "Output contains the headers '## YAGNI Audit', '### Findings', '### Context inspected', plus 'Tier:', 'Count:', and 'Y4 status:' lines."},
+        {"name": "tier_none", "text": "Tier is NONE."},
+        {"name": "count_zero", "text": "Count is 0 and the Findings section is empty."},
+        {"name": "y2_not_false_flagged", "text": "No Y2 (single-caller wrapper) finding is raised — slugify has a direct test and is an exported public API, which the rubric excludes."},
+        {"name": "y4_scored", "text": "Y4 status is 'scored' (the spec at clean-spec.md was resolved and diffed)."},
+        {"name": "sentinel_present", "text": "Output ends with [expert-consult-complete]."}
+      ]
+    },
+    {
+      "id": 1,
+      "name": "bloated-plan",
+      "prompt": "Run a YAGNI audit on the implementation plan at skills/yagni-guardian/fixtures/bloated-plan.md. Its spec is skills/yagni-guardian/fixtures/clean-spec.md. The affected files under src/text/ are created by the plan and don't exist on disk yet — skip them without erroring. Flag any over-engineering before I start coding.",
+      "expected_output": "Tier=HARD, exactly 4 findings: Y1 (ISlugifier speculative interface, one impl), Y2 (formatStringHelper single-caller wrapper), Y3 (format-string-config caseStyle/separator never flipped), Y4 (profanity-filter feature outside spec). Y4 present forces HARD regardless of count. Findings use canonical short tokens. Output follows the strict schema and ends with the sentinel.",
+      "files": [
+        "skills/yagni-guardian/fixtures/bloated-plan.md",
+        "skills/yagni-guardian/fixtures/clean-spec.md"
+      ],
+      "assertions": [
+        {"name": "schema_present", "text": "Output contains the headers '## YAGNI Audit', '### Findings', '### Context inspected', plus 'Tier:', 'Count:', and 'Y4 status:' lines."},
+        {"name": "tier_hard", "text": "Tier is HARD."},
+        {"name": "count_four", "text": "Count is 4 and exactly four finding bullets are present."},
+        {"name": "finding_tag_format", "text": "Every finding bullet matches the regex ^- \\[Y[1-7]\\]."},
+        {"name": "signal_mix_y1_y2_y3_y4", "text": "The four findings are one each of Y1, Y2, Y3, and Y4 — no duplicates, no other signals."},
+        {"name": "canonical_tokens", "text": "Finding signal tokens are the canonical short forms: 'speculative abstraction' (Y1), 'single-caller wrapper' (Y2), 'dead config flag' (Y3), 'feature outside request' (Y4) — no synonyms or long-form labels."},
+        {"name": "y4_drives_hard", "text": "The Y4 finding references the profanity filter as outside the spec, and its presence is what escalates the tier to HARD."}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "borderline-plan",
+      "prompt": "Run a YAGNI audit on the implementation plan at skills/yagni-guardian/fixtures/borderline-plan.md. Its spec is skills/yagni-guardian/fixtures/cache-spec.md. The affected files under src/ are created or modified by the plan and don't exist on disk yet — skip them without erroring. Flag any over-engineering before I start coding.",
+      "expected_output": "Tier=NONE, 0 findings. Every surface-level YAGNI shape is justified: Y2 (getPostSlug) has a named caller (Express router at src/server.ts) plus a testability rationale; Y5 (caching) cites prod metric M2026-04-12; Y7 (validateApiKey try/catch) is a trust-boundary carve-out. The reviewer must NOT pad. Output follows the strict schema and ends with the sentinel.",
+      "files": [
+        "skills/yagni-guardian/fixtures/borderline-plan.md",
+        "skills/yagni-guardian/fixtures/cache-spec.md"
+      ],
+      "assertions": [
+        {"name": "schema_present", "text": "Output contains the headers '## YAGNI Audit', '### Findings', '### Context inspected', plus 'Tier:', 'Count:', and 'Y4 status:' lines."},
+        {"name": "tier_none", "text": "Tier is NONE."},
+        {"name": "count_zero", "text": "Count is 0 and the Findings section is empty."},
+        {"name": "y2_carveout_applied", "text": "No Y2 finding — getPostSlug has a named caller (src/server.ts router) and a testability rationale."},
+        {"name": "y5_carveout_applied", "text": "No Y5 finding — caching cites prod metric M2026-04-12 (measured bottleneck)."},
+        {"name": "y7_carveout_applied", "text": "No Y7 finding — the validateApiKey try/catch wraps an external API call, a trust boundary."},
+        {"name": "not_padded", "text": "Zero findings total — the reviewer does not invent issues on a fully justified plan."}
+      ]
+    }
+  ]
+}

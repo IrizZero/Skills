@@ -1,0 +1,17 @@
+# Stack template: ASP.NET Razor
+
+> Loaded by `ui-ux-init` SKILL.md render step (main thread). One stack per run.
+> Emits the 10 DESIGN.md sections in order.
+
+### Stack 1 — ASP.NET Razor
+
+- **Section 1 (Preamble):** "ASP.NET Core MVC + Bootstrap 5 (overridden via CSS custom properties)."
+- **Section 2 (Locked Decisions table):** 8 rows — Framework: `ASP.NET MVC` · Override strategy: `CSS variables in wwwroot/css/site.css` · Theme name: `<Project Name>` (placeholder) · Accent hex: `{variant.accent_hex}` · Neutral palette base: slate (zinc fallback) · Display font: `{display_font}` · Body font: `{body_font}` (CSS vars `--font-display` / `--font-body` in `site.css`) · Mono font: `IBM Plex Mono` · Layout style: `{variant.layout_primitive}`.
+- **Section 3 (File Locations):** `wwwroot/css/site.css` (tokens + utilities) · `Views/Shared/_Layout.cshtml` (layout shell) · `Areas/Identity/Views/Account/Login.cshtml` (auth view, uses `_LayoutAuth.cshtml`).
+- **Section 4 (Design Tokens):** CSS custom properties under `:root` in `site.css`. Palette + spacing + radius + typography vars. Token scale per variant. Define the accent as one seed and derive tints. OKLCH is the recommended derivation syntax here (Razor/CSS only): e.g. `--accent: oklch(0.62 0.17 150);` and lighten/darken by adjusting L. Keep neutrals slightly tinted toward the accent hue. **Dark mode (pattern):** define token overrides under `@media (prefers-color-scheme: dark)` OR a `[data-theme="dark"]` selector that swaps the `--bg`/`--surface`/`--text` vars. (Pattern only — do not enumerate the full dark palette here.)
+- **Section 5 (Layout System):** HTML + Razor partial syntax. `<aside class="vdm-sidebar">` for sidebar-left, `<nav class="vdm-topnav">` for topnav, etc. **Responsive:** Bootstrap grid / `@media` breakpoints for viewport adaptation. For components that should react to their own container (not the viewport), CSS container queries (`container-type: inline-size;` + `@container`) are available in Razor/CSS.
+- **Section 6 (Sidebar / Navigation):** `User.IsInRole()` Razor example for role-based visibility.
+- **Section 7 (Component Reference):** HTML + class examples — Buttons (`<button class="btn btn-primary">`), Cards, Page Header, Tables, Badges, Forms. **Motion (functional):** transitions ~150–250ms, `transition-timing-function: ease-in-out` (or a gentle `cubic-bezier`). Wrap non-essential motion in `@media (prefers-reduced-motion: reduce) { ... }` to disable.
+- **Section 8 (View Patterns):** `@model SomeViewModel` + `@RenderBody()` skeleton. Standard CRUD page + List page.
+- **Section 9 (Typography Conventions):** Two type roles as CSS vars in `site.css`: `--font-display: '{display_font}', system-ui, sans-serif;` and `--font-body: '{body_font}', system-ui, sans-serif;`. Headings use `var(--font-display)`, body uses `var(--font-body)`. Import both via one Google Fonts `@import` in `site.css`. Mono = IBM Plex Mono (`.mono-input`). Heading weight 700. Never set a font-family inline.
+- **Section 10 (What NOT to Do):** Seeded: "Do not bypass tokens with inline `style=...` for colors", "Do not import Google Fonts other than the declared display + body + mono", "Do not use Bootstrap `.btn-primary` in new views — use `.<prefix>-btn-primary`". Do not nest `.card` inside `.card` — nested surfaces muddy the elevation hierarchy. Do not put low-contrast text on a colored fill — 4.5:1 minimum (WCAG 1.4.3). Permit the chosen display + body fonts in the `@import`; do not import OTHER Google Fonts.
