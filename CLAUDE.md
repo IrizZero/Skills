@@ -26,14 +26,14 @@ work to the user, Zoho/task ownership, and any "current user" context.
 
 Before writing any code or making file edits, apply this decision tree:
 
-1. **Prompt references a plan/spec file** (e.g. `docs/plans/`, `PROMPT.md`, or any equivalent session-start prompt that was pre-written) Ã¢â€ â€™ just do it, the scope is already defined.
-2. **Everything else** Ã¢â€ â€™ **stop and reconfirm first**, no exceptions.
+1. **Prompt references a plan/spec file** (e.g. `docs/plans/`, `PROMPT.md`, or any equivalent session-start prompt that was pre-written) -> just do it, the scope is already defined.
+2. **Everything else** -> **stop and reconfirm first**, no exceptions.
 
 **Exception — active superpower flow.** If a `superpowers:*` flow is already running (brainstorming, writing-plans, executing-plans, subagent-driven-development), skip the reconfirm. Those flows gate intent themselves; a second restate-and-wait round is pure duplication.
 
 ### How to reconfirm
 
-Restate your understanding in **2Ã¢â‚¬â€œ3 bullet points** covering:
+Restate your understanding in **2-3 bullet points** covering:
 - What you are going to change and where
 - Any assumption you are making that the user has not explicitly stated
 
@@ -41,7 +41,7 @@ Then **wait for the user to confirm** before writing any code.
 
 ### What counts as a plan/spec file
 
-Any file the user explicitly references in their prompt that documents the intended scope Ã¢â‚¬â€ a feature spec, a plan file, a design doc, a session prompt, etc. If the file exists and describes the task, skip the reconfirm.
+Any file the user explicitly references in their prompt that documents the intended scope - a feature spec, a plan file, a design doc, a session prompt, etc. If the file exists and describes the task, skip the reconfirm.
 
 ---
 
@@ -73,24 +73,22 @@ already scopes it.
 
 Auth setup is global across all projects on this machine:
 
-- **`gh` CLI** at `C:\Program Files\GitHub CLI\gh.exe` (installed via winget `GitHub.cli`). Reads `GITHUB_TOKEN` automatically Ã¢â‚¬â€ no `gh auth login` needed.
-- **Windows User-scope env vars** hold the same fine-grained PAT: `GITHUB_TOKEN` and `GITHUB_PERSONAL_ACCESS_TOKEN`. Persist across reboot. Set via `[Environment]::SetEnvironmentVariable(name, value, 'User')`.
-- **GitHub user:** `AmierAshrafw`. Windows Credential Manager has creds for both `AmierAshrafw` and `IrizZero` Ã¢â‚¬â€ for any repo under `AmierAshrafw`, the origin URL MUST embed the username: `https://AmierAshrafw@github.com/AmierAshrafw/<repo>.git`. Without it, cred manager may pick `IrizZero` and the server returns "Repository not found" (auth fail masquerading as 404).
+- **`gh` CLI** at `C:\Program Files\GitHub CLI\gh.exe` (installed via winget `GitHub.cli`). Reads `GITHUB_TOKEN` automatically - no `gh auth login` needed.
+- **Prefer `gh-axi` over `gh` for GitHub operations** (issues, PRs, runs, releases). Agent-optimized wrapper around `gh`, installed globally via npm (`npm install -g gh-axi`), same auth (rides `GITHUB_TOKEN`). Same command shapes: `gh-axi issue list --state open`, `gh-axi pr view 42`. Fall back to plain `gh` if `gh-axi` errors or lacks a subcommand.
+- **Windows User-scope env vars** hold the PAT: `GITHUB_TOKEN` and `GITHUB_PERSONAL_ACCESS_TOKEN`. Persist across reboot. Set via `[Environment]::SetEnvironmentVariable(name, value, 'User')`. If a running process still holds an old token after rotation, reload per-command: `$env:GITHUB_TOKEN = [Environment]::GetEnvironmentVariable('GITHUB_TOKEN','User')`.
+- **GitHub user:** `AmierAshrafw`. Windows Credential Manager has creds for both `AmierAshrafw` and `IrizZero` - for any repo under `AmierAshrafw`, the origin URL MUST embed the username: `https://AmierAshrafw@github.com/AmierAshrafw/<repo>.git`. Without it, cred manager may pick `IrizZero` and the server returns "Repository not found" (auth fail masquerading as 404).
 
 ### Token rotation
 
-- **Current PAT expires: 2026-08-18** (90 days from 2026-05-20).
-- Before expiry: regenerate fine-grained PAT at https://github.com/settings/tokens, scopes `repo` + `read:org` + `gist` + `workflow` (classic) or `Contents R/W` + `Pull requests R/W` + `Issues R/W` (fine-grained, per target repo).
+- **Current PAT expires: 2026-10-04** (classic, note "for agent", 60 days from 2026-08-05).
+- Use a CLASSIC PAT, not fine-grained. Fine-grained PATs cannot access repos owned by another personal account even as collaborator (e.g. `IrizZero/Skills` from the `AmierAshrafw` token) - PR create fails with 403 "Resource not accessible by personal access token". Classic `repo` scope covers collaborator repos.
+- Before expiry: regenerate classic PAT at https://github.com/settings/tokens (AmierAshrafw account), scopes `repo` + `workflow` + `read:org` + `gist`.
 - Update both User env vars with new token value, then restart any process that already loaded the old one (Claude Code Desktop, terminals, etc).
-- Never print the token value to chat Ã¢â‚¬â€ read via `$env:GITHUB_TOKEN` and pipe straight to `SetEnvironmentVariable`. Listings should be name-only.
+- Never print the token value to chat - read via `$env:GITHUB_TOKEN` and pipe straight to `SetEnvironmentVariable`. Listings should be name-only.
 
 ### Diagnose
 
-If a GitHub command fails with auth error:
-1. `gh auth status` Ã¢â‚¬â€ confirms gh sees a token.
-2. `[Environment]::GetEnvironmentVariables('User').GetEnumerator() | Where Name -like "*GITHUB*" | Select Name` Ã¢â‚¬â€ confirms env vars persisted.
-3. `git remote -v` Ã¢â‚¬â€ confirms origin URL embeds `AmierAshrafw@`.
-4. If past 2026-08-18: PAT likely expired Ã¢â‚¬â€ rotate per above.
+Auth error: `gh auth status` (gh sees a token?) -> `[Environment]::GetEnvironmentVariables('User').GetEnumerator() | Where Name -like "*GITHUB*" | Select Name` (env vars persisted?) -> `git remote -v` (origin embeds `AmierAshrafw@`?). Token prefix check (never print full value): `ghp_` = classic (current), `github_pat_` = fine-grained (stale). Past 2026-10-04: PAT likely expired - rotate per above.
 
 ---
 
@@ -154,7 +152,7 @@ The reviewer is **advisory only**. It cannot block the flow. If the reviewer fai
 
 The user may say "skip review" to bypass the reviewer entirely, or "re-review plan" to run it again after editing the plan.
 
-The dispatched `plan-reviewer` subagent MUST run with `model: opus` Ã¢â‚¬â€ cheaper models have produced false positives (misreading markdown-table escapes as file content, flagging intentionally-empty sections). Do not downgrade.
+The dispatched `plan-reviewer` subagent MUST run with `model: opus` - cheaper models have produced false positives (misreading markdown-table escapes as file content, flagging intentionally-empty sections). Do not downgrade.
 
 <!-- END plan-reviewer -->
 
