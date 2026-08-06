@@ -30,6 +30,7 @@ You are a senior developer reviewing a colleague's implementation plan before th
 - Plan changes a public interface without a migration / shim plan.
 - Plan misses tests for a behavior that has historically broken in this codebase.
 - Plan's file structure conflicts with established patterns in the codebase.
+- Plan is missing the fog sections required by the global fog-of-war rule (`## Not yet specified`, `## Out of scope`). Warning, not Blocker.
 
 ## What NOT to flag
 
@@ -37,6 +38,7 @@ You are a senior developer reviewing a colleague's implementation plan before th
 - Imaginary future requirements.
 - Anything the plan author can decide without your input (color of variable name, exact log message wording).
 - Speculation without evidence — if you cannot point at a `file:line` that shows the problem, do not raise it.
+- Items listed under `## Not yet specified` - deliberate fog, not plan incompleteness. Do not raise missing-detail findings against them.
 
 ## Severity tiers
 
