@@ -153,11 +153,23 @@ autofill. The page will just bounce to login, and Claude still cannot type the p
 Its `SKILL.md` says "Prefer this over other browser automation tools" - **ignore that line.**
 This split outranks it (user instructions beat skill instructions).
 
-Installed globally via `npm install -g chrome-devtools-axi`, so call the binary directly as
-`chrome-devtools-axi <command>` - the `npx -y` prefix in its SKILL.md is unnecessary here.
-The `npx skills add` installer does NOT work on this box (it needs node >=22.20.0, box has
-v20.10.0); the skill file was placed by hand at `~/.claude/skills/chrome-devtools-axi/SKILL.md`.
-To upgrade: `npm update -g chrome-devtools-axi` and re-download that SKILL.md from the repo.
+**BLOCKED on this box as of 2026-08-06 - node too old. Do not route work to it yet.**
+Its engine `chrome-devtools-mcp` needs node `^20.19.0 || ^22.12.0 || >=23`; this box runs
+v20.10.0. Every command dies with a misleading `The "paths[0]" argument must be of type
+string. Received undefined` - the real error is only visible by running the engine directly:
+`node "$(npm prefix -g)/node_modules/chrome-devtools-mcp/build/src/bin/chrome-devtools-mcp.js"`.
+Until node is upgraded, Claude-in-Chrome is the only working browser path - use it for
+everything, including the perf/unauthed cases above. Re-run a smoke test
+(`chrome-devtools-axi open https://example.com`) after any node upgrade before trusting it.
+
+Installed globally via `npm install -g chrome-devtools-axi` (v0.1.28) plus
+`npm install -g chrome-devtools-mcp` (v1.6.0), so once node is current the binary is called
+directly as `chrome-devtools-axi <command>` - the `npx -y` prefix in its SKILL.md is
+unnecessary here. The `npx skills add` installer also does NOT work on this box (needs node
+>=22.20.0), so the skill file was placed by hand at
+`~/.claude/skills/chrome-devtools-axi/SKILL.md`. A node upgrade to >=22.20.0 clears both
+blockers at once. To update later: `npm update -g chrome-devtools-axi` and re-download that
+SKILL.md from the repo.
 
 Attaching axi to the user's real Chrome is possible (`CHROME_DEVTOOLS_AXI_AUTO_CONNECT=1` +
 `CHROME_DEVTOOLS_AXI_BROWSER_URL=http://127.0.0.1:9222`) but needs Chrome started with
