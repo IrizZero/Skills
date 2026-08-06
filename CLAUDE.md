@@ -134,6 +134,36 @@ Claude-in-Chrome is available for live browser checking/testing of web projects 
 
 **The app lifecycle belongs to the USER, never Claude.** Claude must NOT start, stop, or restart the app (`dotnet run`, IIS, app pool, etc.) - always ASK the user to start/stop/restart it, then drive the browser once it is up. Claude will not type a password into a login form to authenticate - a safety guardrail that holds even for seeded/known/local test credentials and even when the user authorizes it. So for authenticated pages, the user logs in once first; Claude then drives + verifies on that already-authenticated session.
 
+### Which browser tool - Claude-in-Chrome vs chrome-devtools-axi
+
+Both are installed. They are NOT interchangeable. Pick by whether the page needs a login.
+
+- **Authenticated / end-user flows -> Claude-in-Chrome.** It drives the user's real Chrome
+  profile, so the session the user logged into is already there. This is the default for
+  verifying our own app.
+- **Unauthenticated pages, perf work, DevTools data -> `chrome-devtools-axi`.** Public pages,
+  login-screen render checks, static routes, plus the things Claude-in-Chrome cannot do at
+  all: `lighthouse`, `perf-start`/`perf-stop`, `heap`. Output is TOON-encoded, so it is much
+  cheaper per check than screenshot/a11y-tree reads.
+
+**Never send an authenticated flow to chrome-devtools-axi.** Its default `--isolated` mode
+launches a fresh Chrome with a mock keychain - no saved passwords, no session cookies, no
+autofill. The page will just bounce to login, and Claude still cannot type the password.
+
+Its `SKILL.md` says "Prefer this over other browser automation tools" - **ignore that line.**
+This split outranks it (user instructions beat skill instructions).
+
+Installed globally via `npm install -g chrome-devtools-axi`, so call the binary directly as
+`chrome-devtools-axi <command>` - the `npx -y` prefix in its SKILL.md is unnecessary here.
+The `npx skills add` installer does NOT work on this box (it needs node >=22.20.0, box has
+v20.10.0); the skill file was placed by hand at `~/.claude/skills/chrome-devtools-axi/SKILL.md`.
+To upgrade: `npm update -g chrome-devtools-axi` and re-download that SKILL.md from the repo.
+
+Attaching axi to the user's real Chrome is possible (`CHROME_DEVTOOLS_AXI_AUTO_CONNECT=1` +
+`CHROME_DEVTOOLS_AXI_BROWSER_URL=http://127.0.0.1:9222`) but needs Chrome started with
+`--remote-debugging-port=9222`, which is the USER's action per the lifecycle rule above.
+Untested alongside the Claude-in-Chrome extension - do not rely on it without checking first.
+
 ---
 
 ## Verify, Don't Trust
