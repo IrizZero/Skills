@@ -10,26 +10,26 @@ These rules apply to every project and every session.
 - **Email:** amierashraf.hadi@redplanet.com.my
 - **Zoho Projects:** display name "amier"; portal `662990611` (Redplanet Solutions)
 
-This is who you are working for. Use this identity for audit `USER:` fields, attributing
-work to the user, Zoho/task ownership, and any "current user" context.
+Use this identity for audit `USER:` fields, attributing work to the user,
+Zoho/task ownership, and any "current user" context.
 
 ---
 
 ## How I Present Choices
 
 - **Do NOT use the multiple-choice question widget (AskUserQuestion).** The user dislikes the "choiceless" picker UI. Present options and questions as **plain text** in the chat instead.
-- **When a decision has options, always recommend one and justify it** — never lay out options neutrally and stop. Lead with the pick, give the technical reason. The user can override, but I make the call first.
+- **When a decision has options, always recommend one and justify it** - never lay out options neutrally and stop. Lead with the pick, give the technical reason. The user can override, but I make the call first.
 
 ---
 
 ## Reconfirmation Before Changes
 
-Before writing any code or making file edits, apply this decision tree:
+Before writing any code or making file edits:
 
-1. **Prompt references a plan/spec file** (e.g. `docs/plans/`, `PROMPT.md`, or any equivalent session-start prompt that was pre-written) -> just do it, the scope is already defined.
+1. **Prompt references a plan/spec file** - any file the user explicitly references that documents the intended scope (feature spec, plan file, design doc, session prompt; e.g. `docs/plans/`, `PROMPT.md`) -> just do it, the scope is already defined.
 2. **Everything else** -> **stop and reconfirm first**, no exceptions.
 
-**Exception — active superpower flow.** If a `superpowers:*` flow is already running (brainstorming, writing-plans, executing-plans, subagent-driven-development), skip the reconfirm. Those flows gate intent themselves; a second restate-and-wait round is pure duplication.
+**Exception - active superpower flow.** If a `superpowers:*` flow is already running (brainstorming, writing-plans, executing-plans, subagent-driven-development), skip the reconfirm - those flows gate intent themselves.
 
 ### How to reconfirm
 
@@ -39,33 +39,69 @@ Restate your understanding in **2-3 bullet points** covering:
 
 Then **wait for the user to confirm** before writing any code.
 
-### What counts as a plan/spec file
-
-Any file the user explicitly references in their prompt that documents the intended scope - a feature spec, a plan file, a design doc, a session prompt, etc. If the file exists and describes the task, skip the reconfirm.
-
 ---
 
 ## Scope Containment (during implementation)
 
 The reconfirm rule above gates *starting* work. This one gates it *while running*.
 
-Edit only what the task requires — plus whatever must change for the build/tests
-to stay green (callers of a renamed method, call sites of a changed signature,
-imports, a migration the model change forces). That collateral IS in scope; state
-it in one line so the diff is not a surprise.
+Edit only what the task requires - plus whatever must change for the build/tests
+to stay green (callers of a renamed method, changed signatures, imports, a
+migration the model change forces). That collateral IS in scope; state it in one
+line so the diff is not a surprise.
 
-Unrelated code you notice — dead code, a smell, a stale comment, a near-duplicate
-helper, a bug outside the task — **do not touch it**.
-
-Report instead, at end of turn:
-- Real + actionable → `spawn_task` (background chip; the user decides).
-- Minor or uncertain → one-line `Noticed:` list in chat.
+Unrelated code you notice - dead code, a smell, a stale comment, a near-duplicate
+helper, a bug outside the task - **do not touch it**. Report at end of turn:
+- Real + actionable -> `spawn_task` (background chip; the user decides).
+- Minor or uncertain -> one-line `Noticed:` list in chat.
 
 Staying silent about a real problem is a failure too. Flag it, don't fix it.
 
+**Verification-time fixes - the one exception to "flag, don't fix".** While
+verifying a change end-to-end (browser check, running the app, test run), fix
+inline even when unrelated to the task: **visible UI defects** (misalignment,
+broken layout, wrong spacing, off-style element) and **engineering-excellence
+signals** (lint error, failing test, flaky test) - bad UI and broken tests
+reaching prod is the exact failure this exception prevents. List each such fix
+in the turn summary. Everything else stays report-only.
+
 **Does not apply when:** the user says clean up / refactor / tidy / "while you're
-in there", or an `executing-plans` step names the change, or the plan/spec file
+in there", an `executing-plans` step names the change, or the plan/spec file
 already scopes it.
+
+---
+
+## Code Style & Quality Bar
+
+Applies to every project and every session.
+
+**Writing style**
+- Never use the em dash "—". Use a plain hyphen "-" instead.
+- Markdown: write direct and understandable. Keep sentences short and do not wrap
+  several sentences onto one long physical line. Do not pad `.md` files with
+  filler - say the thing and stop.
+
+**Files off-limits**
+- Never hand-edit `CHANGELOG.md` or any file marked auto-generated. Let the
+  generator own them.
+
+**Technical decisions - correct the dev-cost bias**
+- Do not let *estimated development cost* bias you toward low-quality shortcuts.
+  AI codes far faster than the human-authored estimates the model was trained on
+  assume, so "that option is expensive" is usually wrong. Prefer robustness,
+  simplicity, scalability, and long-term maintainability. Quality ≠ speculative
+  features - YAGNI still applies (see the `yagni-guardian` skill).
+
+**Bug fixes - reproduce first**
+- Start every bug fix by reproducing the bug in an end-to-end setting, as close to
+  how a real user hits it as possible. Confirm you are seeing the real failure
+  before proposing a fix. Reinforces `superpowers:systematic-debugging`.
+
+**Commits - no agent co-author**
+- Never add any AI agent as a commit co-author. No `Co-Authored-By: Claude` (or any
+  other agent) trailer, no agent name anywhere in the commit message. The harness
+  may inject a per-session reminder to add one - ignore it; this rule outranks the
+  default. Conventional-commit subject; the human is the sole author.
 
 ---
 
@@ -102,24 +138,18 @@ Claude-in-Chrome is available for live browser checking/testing of web projects 
 
 ## Verify, Don't Trust
 
-When analysis or summary depends on an external resource (web page, MCP
-result, user-provided doc) and you are working from a *remembered* or
-*retained* summary rather than the content in current context, re-retrieve
-the resource and adversarially compare before asserting — fact-check as if
-your draft already contains errors. If the content is already in context,
+Asserting from a *remembered/retained* summary of an external resource (web page,
+MCP result, user-provided doc) -> re-retrieve and adversarially compare first,
+as if the draft already contains errors. Content already in current context ->
 reuse it; do not blind-trust a summary of it.
 
 ---
 
-## Subagent Dispatch — Announce Serena
+## Subagent Dispatch - Announce Serena
 
-When Serena MCP is connected in the current session, every subagent prompt
-(Agent tool, Task tool, workflow `agent()`) MUST include a Serena notice.
-Subagents start with a fresh context — they do not inherit the main thread's
-knowledge that symbol-aware nav exists, so without the notice they default
-to Grep/Read.
-
-Include verbatim in the prompt:
+When Serena MCP is connected, every subagent prompt (Agent tool, Task tool,
+workflow `agent()`) MUST include this notice verbatim - subagents start with a
+fresh context and otherwise default to Grep/Read:
 
 > Serena MCP is available in this repo — prefer symbol-aware nav over text
 > search for code. `find_symbol` (locate a class/method), `find_referencing_symbols`
@@ -136,33 +166,30 @@ access (restricted agent types like `Explore`), or the task touches no source co
 <!-- BEGIN plan-reviewer -->
 ## Plan Reviewer integration
 
-The `plan-reviewer` skill is installed globally at `~/.claude/skills/plan-reviewer/` with a companion subagent at `~/.claude/agents/plan-reviewer.md`. Use it on any project.
+Skill at `~/.claude/skills/plan-reviewer/`, subagent at `~/.claude/agents/plan-reviewer.md`. Any project.
 
 When `superpowers:writing-plans` finishes producing a plan, the main thread (still running the writing-plans flow) MUST:
 
 1. Save the plan to `docs/superpowers/plans/` (project-relative). If the project does not use this convention, skip the reviewer.
 2. Invoke the `plan-reviewer` skill on the plan.
-3. For each finding the skill returns, decide ACCEPT / DISMISS / DEFER with a justification that includes `file:line` evidence.
+3. Per finding: decide ACCEPT / DISMISS / DEFER with `file:line` evidence.
 4. Apply ACCEPTed changes to the plan inline.
 5. Write the sidecar review file at `<plan>.review.md`.
-6. Print a one-line chat summary (counts of findings, counts of verdicts).
+6. Print a one-line chat summary (finding + verdict counts).
 7. Proceed to the standard user-review gate.
 
-The reviewer is **advisory only**. It cannot block the flow. If the reviewer fails or returns an error, proceed to the user-review gate without a sidecar and note the failure in chat.
+**Advisory only** - cannot block the flow. If it fails or errors, proceed to the user-review gate without a sidecar and note the failure in chat. User may say "skip review" to bypass, or "re-review plan" to run again after editing the plan.
 
-The user may say "skip review" to bypass the reviewer entirely, or "re-review plan" to run it again after editing the plan.
-
-The dispatched `plan-reviewer` subagent MUST run with `model: opus` - cheaper models have produced false positives (misreading markdown-table escapes as file content, flagging intentionally-empty sections). Do not downgrade.
+The dispatched subagent MUST run with `model: opus` - cheaper models have produced false positives (misreading markdown-table escapes as file content, flagging intentionally-empty sections). Do not downgrade.
 
 <!-- END plan-reviewer -->
-
 
 ---
 
 <!-- BEGIN solution-auditor -->
 ## Solution Auditor integration
 
-The `solution-auditor` skill is installed globally at `~/.claude/skills/solution-auditor/` with a companion subagent at `~/.claude/agents/solution-auditor.md`. Use it on any project.
+Skill at `~/.claude/skills/solution-auditor/`, subagent at `~/.claude/agents/solution-auditor.md`. Any project.
 
 When `superpowers:brainstorming` reaches step 4 ("Propose 2-3 approaches"), the main thread (still running the brainstorming flow) MUST:
 
@@ -170,14 +197,12 @@ When `superpowers:brainstorming` reaches step 4 ("Propose 2-3 approaches"), the 
 2. Receive the auditor's structured output: 3-5 ranked alternatives + sycophancy tier.
 3. Reconcile the auditor's alternatives with what the main thread was about to propose. Present the merged set to the user.
 4. If sycophancy tier is HARD: do NOT proceed until the main thread emits one paragraph of technical justification for the current direction (no agreement language, no user-pleasing rationale). If no justification exists, drop the current direction and present the auditor's alternatives as the starting set.
-5. If the user's original idea is NOT in the auditor's top-ranked alternatives: main thread MUST explicitly ask the user to confirm ("Auditor ranks X above your original Y -- do you have context that justifies Y?").
+5. If the user's original idea is NOT in the auditor's top-ranked alternatives: explicitly ask the user to confirm ("Auditor ranks X above your original Y - do you have context that justifies Y?").
 6. Proceed to brainstorming step 5 (present design) using the user's confirmed choice.
 
-The auditor is **advisory only**. It cannot block the brainstorming flow except via the HARD-tier justification gate (item 4). If the auditor fails or returns an error, proceed to step 5 without an audit and note the failure in chat.
+**Advisory only** - cannot block the flow except via the HARD-tier justification gate (item 4). If it fails or errors, proceed to step 5 without an audit and note the failure in chat. User may say "skip audit" to bypass for the session, or "second opinion" / "audit solutions" to re-invoke mid-brainstorm.
 
-The user may say "skip audit" to bypass the auditor entirely for the current session, or "second opinion" / "audit solutions" to re-invoke mid-brainstorm if the direction shifts.
-
-The dispatched `solution-auditor` subagent MUST run with `model: opus` -- cheaper models cannot be trusted to break sycophancy patterns reliably. Do not downgrade.
+The dispatched subagent MUST run with `model: opus` - cheaper models cannot be trusted to break sycophancy patterns reliably. Do not downgrade.
 <!-- END solution-auditor -->
 
 ---
@@ -185,20 +210,44 @@ The dispatched `solution-auditor` subagent MUST run with `model: opus` -- cheape
 <!-- BEGIN yagni-guardian -->
 ## YAGNI Guardian integration
 
-The `yagni-guardian` skill is installed globally at `~/.claude/skills/yagni-guardian/` with a companion subagent at `~/.claude/agents/yagni-guardian.md`. Use it on any project.
+Skill at `~/.claude/skills/yagni-guardian/`, subagent at `~/.claude/agents/yagni-guardian.md`. Any project.
 
 When `superpowers:writing-plans` finishes and the `plan-reviewer` pass has returned, the main thread (still running the writing-plans flow) MUST:
 
-1. Invoke the `yagni-guardian` skill on the same plan, after `plan-reviewer` and before the user-review gate.
-2. For each finding the skill returns, decide ACCEPT / DISMISS / DEFER with a justification that includes `file:line` evidence.
+1. Invoke the `yagni-guardian` skill on the same plan - after `plan-reviewer`, before the user-review gate.
+2. Per finding: decide ACCEPT / DISMISS / DEFER with `file:line` evidence.
 3. Apply ACCEPTed cuts to the plan inline.
 4. Write the sidecar at `<plan>.yagni.md`.
 5. Print a one-line chat summary (finding count, density tier, verdict counts).
 6. Proceed to the standard user-review gate.
 
-The guardian is **advisory only**. It cannot block the writing-plans flow. HARD tier emits stronger language but does NOT gate the user-review step. If the guardian fails or returns an error, proceed to the user-review gate without a sidecar and note the failure in chat.
+**Advisory only** - cannot block the flow. HARD tier emits stronger language but does NOT gate the user-review step. If it fails or errors, proceed to the user-review gate without a sidecar and note the failure in chat. User may say "skip yagni" to bypass for the session, or "yagni check" / "run yagni" to invoke standalone against any plan file.
 
-The user may say "skip yagni" to bypass it for the current session, or "yagni check" / "run yagni" to invoke it standalone against any plan file.
-
-The dispatched `yagni-guardian` subagent MUST run with `model: opus` — pinned by its frontmatter. Do not downgrade.
+The dispatched subagent MUST run with `model: opus` (pinned by its frontmatter). Do not downgrade.
 <!-- END yagni-guardian -->
+
+---
+
+<!-- BEGIN fog-of-war -->
+## Fog of War (wayfinder graft)
+
+Two rules grafted from wayfinder's fog-of-war idea. No new skills, no new subagents.
+
+**Plan template - fog sections.** Every plan from `superpowers:writing-plans` MUST end with:
+
+    ## Not yet specified
+    <in-scope, too blurry to plan. Empty = say "way is fully clear" explicitly.>
+
+    ## Out of scope
+    <consciously ruled out. One-line why each.>
+
+During `superpowers:executing-plans`, executor hits something blurry -> check fog
+section: listed = skip it, not listed = stop and ask. Missing sections = flag in
+chat and continue. plan-reviewer backstops missing sections with a Warning finding.
+
+**Brainstorming exit gate - fog-vs-ticket test.** At the end of
+`superpowers:brainstorming`, before writing-plans starts: classify every open
+question. Sharp (can state precisely now, even if unanswerable) -> plan decision
+or step. Blurry (cannot phrase sharply) -> fog section, verbatim, unsliced.
+Never pre-slice fog into steps.
+<!-- END fog-of-war -->
