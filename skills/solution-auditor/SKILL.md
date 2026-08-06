@@ -148,5 +148,3 @@ If this skill is invoked from within a `solution-auditor` subagent context (the 
 - The dispatched subagent has only `Read`, `Grep`, `Glob` tools. No `Edit`, `Write`, `Bash`, `WebSearch`, `WebFetch`.
 - Even on error, the skill returns control to the dominant flow via the sentinel rule documented in "Integration with superpowers" above. The only documented exception is standalone mode.
 - The subagent definition lives at `agents/solution-auditor.md` and the dispatching main thread assumes Claude Code's agent loader resolves `subagent_type: solution-auditor` to that file (the install copies it to `~/.claude/agents/solution-auditor.md`).
-
-[expert-consult-complete]

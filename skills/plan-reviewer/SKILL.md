@@ -94,5 +94,3 @@ This skill is invoked from the `superpowers:writing-plans` flow.
 - The dispatched subagent has only `Read`, `Grep`, `Glob`, `Bash` tools. Bash is constrained to inspection commands (`git log`, `git diff`, `ls`-equivalents). No build / test / install / deploy.
 - The skill **always** returns control via the sentinel, even on error. Never hang the superpower flow.
 - The `plan-reviewer` subagent definition lives at `agents/plan-reviewer.md` (source), deployed to `~/.claude/agents/plan-reviewer.md`. Claude Code's agent loader resolves `subagent_type: plan-reviewer` by name to that file.
-
-[expert-consult-complete]

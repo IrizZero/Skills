@@ -6,16 +6,12 @@ user-invocable: true
 
 # Folder CLAUDE.md Creation
 
-> **Windows note (this machine):** Skip Step 6 (the `ln -s CLAUDE.md AGENTS.md` symlink) — Windows symlinks need dev-mode/admin and Git Bash usually copies instead of linking. Claude Code reads `CLAUDE.md` directly, so the symlink is optional; if a tool truly needs `AGENTS.md`, use `cmd //c mklink AGENTS.md CLAUDE.md` from an elevated shell. Also ignore the macOS `~/Documents/code/workspace/` path in Step 1 — use the real repo path (e.g. `C:/Users/amierashraf.hadi/Downloads/GIT/<repo>`).
-
-Generate a focused `CLAUDE.md` inside a target folder, plus an `AGENTS.md` symlink pointing at it. The file gives any future agent (Claude Code, Codex, etc.) the folder-specific context the global `CLAUDE.md` doesn't cover.
-
-Background reference: `library/claude-code/claude-and-agents-md.md`.
+Generate a focused `CLAUDE.md` inside a target folder, optionally with an `AGENTS.md` symlink pointing at it (see Step 6). The file gives any future agent (Claude Code, Codex, etc.) the folder-specific context the global `CLAUDE.md` doesn't cover.
 
 ## Process
 
 ### Step 1: Confirm the target folder + sanity-check it deserves a file
-Ask the user which folder. Use absolute path under `~/Documents/code/workspace/`.
+Ask the user which folder. Use the absolute path of the real repo (e.g. `C:/Users/amierashraf.hadi/Downloads/GIT/<repo>`).
 
 **Only create a file if the folder has context needed across multiple sessions** — active evolving work, specific conventions, ongoing decisions. A folder of static reference files does NOT need one (agents can read on demand). If unsure, ask the user.
 
@@ -53,11 +49,14 @@ Before writing the file, give the user a bullet list grouped by section — let 
 - **Cross-folder references:** use `@relative/path/file.md` import syntax, not prose mentions.
 - **Heavy reference docs:** annotate with `**Read when:**` triggers (e.g. "Read when: writing offer copy"). Prevents loading every session.
 
-### Step 6: Create the AGENTS.md symlink
+### Step 6: AGENTS.md symlink (optional on Windows)
+Claude Code reads `CLAUDE.md` directly - no `AGENTS.md` needed. Skip this step by default.
+
+If another tool (Codex, etc.) truly requires `AGENTS.md`, create a real symlink from an elevated shell:
 ```
-cd <folder> && ln -s CLAUDE.md AGENTS.md
+cmd /c mklink AGENTS.md CLAUDE.md
 ```
-Verify with `ls -la CLAUDE.md AGENTS.md`.
+Windows symlinks need dev-mode or admin; `ln -s` in Git Bash usually copies instead of linking, so do not use it. Never copy the file - a copy drifts out of sync.
 
 ### Step 7: Commit only when asked
 Do NOT stage or push unless the user says to. When they do: `git add -A`, commit with a `Day N:` style message, push.
@@ -73,5 +72,5 @@ Do NOT stage or push unless the user says to. When they do: `git add -A`, commit
 - **Never summarize or auto-shorten the file.** Context collapse degrades it. Grow deliberately, prune manually. If the user asks to trim, do it by hand.
 - **Maintenance loop.** When the user corrects the agent on something this file should have prevented, add the rule to the file immediately. Don't wait.
 - **No emojis unless the user uses them** (status markers ✅ 🟡 are the exception — they're already conventions).
-- **Symlink, not copy.** `AGENTS.md` must be a symlink so edits stay in sync.
+- **Symlink, not copy.** If `AGENTS.md` exists at all, it must be a real symlink so edits stay in sync. A stale copy is worse than no file.
 - **Flag gaps honestly.** If the user's edits introduce contradictions (e.g. "sell X" in one section and "never sell X" in another), call it out before they ask.
