@@ -20,11 +20,12 @@
       "note": "Global instructions are personal per-box (identity, token-rotation dates, absolute paths). Do NOT auto-overwrite. Copy to CLAUDE.md.from-repo beside target and let the agent/user diff+merge."
     }
   ],
-  "counts": { "skills": 14, "agents": 5, "commands": 1 },
+  "counts": { "skills": 15, "agents": 5, "commands": 1 },
   "skills": [
-    "brain-to-docs", "database-expert", "decisions", "folder-specific-claude-and-agents-md",
-    "handoff", "plan-reviewer", "research-prompt", "setup-help", "solution-auditor",
-    "stress-test", "teach", "ui-ux-advisor", "ui-ux-init", "yagni-guardian"
+    "brain-to-docs", "chrome-devtools-axi", "database-expert", "decisions",
+    "folder-specific-claude-and-agents-md", "handoff", "plan-reviewer", "research-prompt",
+    "setup-help", "solution-auditor", "stress-test", "teach", "ui-ux-advisor", "ui-ux-init",
+    "yagni-guardian"
   ],
   "agents": [
     "plan-reviewer.md", "solution-auditor.md", "ui-ux-advisor.md", "ui-ux-init.md", "yagni-guardian.md"
