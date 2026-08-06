@@ -179,5 +179,3 @@ This skill is **superpower-integrated** (Mode A) AND **standalone** (Mode B-ligh
 | Flutter | `IconButton`, `AppBar`, `EdgeInsets`, `ColorScheme`, `Theme.of(context)` | `class=`, `<button>`, CSS, `px`/`rem` |
 | React/Vue/Svelte | Component idioms, hooks/composables/stores, JSX/SFC/template syntax | The other stack's vocab |
 | unknown | Named principles only (WCAG incl. 1.4.3/2.3.3, Material 3 incl. elevation + motion, HIG, Fitts's law, type-role pairing) | Fabricated project-specific claims |
-
-[expert-consult-complete]

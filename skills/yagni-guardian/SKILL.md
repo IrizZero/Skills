@@ -156,5 +156,3 @@ When invoked outside any `superpowers:*` flow:
 ## Recursive invocation
 
 If the skill is invoked from within a `yagni-guardian` subagent context (an agent tries to call the skill), abort immediately with an error message and the sentinel. The reviewer cannot self-invoke.
-
-[expert-consult-complete]

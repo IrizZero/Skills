@@ -215,5 +215,3 @@ generic) · 7 Component Reference · 8 View Patterns · 9 Typography Conventions
 ## Cross-skill note
 
 After this skill ships, `ui-ux-advisor` emits a one-line tip in its `Design source: none` branch: `> Tip: run \`ui init\` to seed a docs/ui-ux/DESIGN.md so future consults cite project-specific patterns.` That edit already shipped at commit `5ad74d6`. Advisor still does NOT auto-invoke `ui init` — the tip is informational only.
-
-[ui-init-variants-ready]
