@@ -291,3 +291,11 @@ question. Sharp (can state precisely now, even if unanswerable) -> plan decision
 or step. Blurry (cannot phrase sharply) -> fog section, verbatim, unsliced.
 Never pre-slice fog into steps.
 <!-- END fog-of-war -->
+
+---
+
+## Task board (MUSTER)
+
+Task board: `tasks/` is managed by MUSTER. Executors follow `tasks/RUNNER.md`
+exactly. Never edit files under `tasks/` by hand; the `tasks/bin/` scripts own
+all state transitions.
