@@ -8,7 +8,7 @@ The intended flow: on a new machine you tell its Claude Code agent *"install my 
 
 | Path | What | Install handling |
 |------|------|------------------|
-| `skills/` | 14 personal skills (one folder each) | **additive copy** into `~/.claude/skills/` |
+| `skills/` | 17 personal skills (one folder each) | **additive copy** into `~/.claude/skills/` |
 | `agents/` | 5 subagent definitions (`*.md`) | **additive copy** into `~/.claude/agents/` |
 | `commands/` | 1 slash command (`*.md`) | **additive copy** into `~/.claude/commands/` |
 | `settings.json` | plugin + hook + statusline + model config | **MERGE**, do not overwrite |
@@ -45,7 +45,7 @@ Leave the target's `model`, `permissions`, `effortLevel`, and everything else un
 
 **5. Verify** against `manifest.json`:
 
-- `~/.claude/skills/` contains the 14 folders in `manifest.skills`
+- `~/.claude/skills/` contains the 17 folders in `manifest.skills`
 - `~/.claude/agents/` contains 5 `*.md`
 - `~/.claude/commands/` contains 1 `*.md`
 
