@@ -211,16 +211,16 @@ Skill at `~/.claude/skills/plan-reviewer/`, subagent at `~/.claude/agents/plan-r
 When `superpowers:writing-plans` finishes producing a plan, the main thread (still running the writing-plans flow) MUST:
 
 1. Save the plan to `docs/superpowers/plans/` (project-relative). If the project does not use this convention, skip the reviewer.
-2. Invoke the `plan-reviewer` skill on the plan.
-3. Per finding: decide ACCEPT / DISMISS / DEFER with `file:line` evidence.
+2. Invoke the `plan-reviewer` skill on the plan. Two reviewers of different model lineage run: the opus subagent (primary) plus a Codex `gpt-5.6-sol`@high **adversarial cold-scan-then-critique** pass. Codex first scans the plan cold (independent findings), then critiques each opus finding (CONFIRM / REFUTE / RAISE / LOWER). The skill returns a reconciled set: opus findings annotated with the Codex verdict, plus Codex-only cold findings tagged `[sol]`, and agreed findings tagged `[both]`.
+3. Per finding: decide ACCEPT / DISMISS / DEFER with `file:line` evidence. Weigh the Codex verdict as evidence: `[both]` is high-confidence (DISMISS only with explicit counter-evidence); a Codex `REFUTE` carrying `file:line` must be engaged on its merits - a bare "opus flagged it" no longer suffices to ACCEPT over a cited refutation.
 4. Apply ACCEPTed changes to the plan inline.
-5. Write the sidecar review file at `<plan>.review.md`.
-6. Print a one-line chat summary (finding + verdict counts).
+5. Write the sidecar review file at `<plan>.review.md` - record the source tag and Codex verdict alongside each finding.
+6. Print a one-line chat summary (finding + verdict counts, plus `codex: ok` or `codex: failed - opus-only`).
 7. Proceed to the standard user-review gate.
 
-**Advisory only** - cannot block the flow. If it fails or errors, proceed to the user-review gate without a sidecar and note the failure in chat. User may say "skip review" to bypass, or "re-review plan" to run again after editing the plan.
+**Advisory only** - cannot block the flow. If it fails or errors, proceed to the user-review gate without a sidecar and note the failure in chat. The adversarial Codex pass is best-effort: on Codex error or timeout the skill falls back to opus-only findings and says so - it never blocks. User may say "skip review" to bypass, or "re-review plan" to run again after editing the plan.
 
-The dispatched subagent MUST run with `model: opus` - cheaper models have produced false positives (misreading markdown-table escapes as file content, flagging intentionally-empty sections). Do not downgrade.
+The primary dispatched subagent MUST run with `model: opus` - cheaper models have produced false positives (misreading markdown-table escapes as file content, flagging intentionally-empty sections). Do not downgrade. The adversarial pass is fixed at `gpt-5.6-sol` @ `high` effort, invoked via `codex exec` directly (never the background/companion runtime, which deadlocks on Windows); do NOT escalate it to `xhigh` without explicit owner approval.
 
 <!-- END plan-reviewer -->
 
