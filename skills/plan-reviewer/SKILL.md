@@ -14,7 +14,7 @@ Invoked automatically at the end of the `superpowers:writing-plans` flow, after 
 A senior-developer review pass on an implementation plan, run by **two reviewers of different model lineage** for uncorrelated blind spots:
 
 1. **Primary — `plan-reviewer` subagent (Claude opus).** Reads the plan plus the affected codebase files in its own context window, returns structured findings (Blockers / Warnings / Suggestions).
-2. **Adversarial — Codex `gpt-5.6-sol` @ high effort.** A skeptic pass that runs AFTER the primary. It does a cold independent scan of the same plan, THEN critiques the primary's findings (confirm / refute / raise / lower). Different training lineage from opus, so it breaks lineage-correlated misses that context-isolation alone cannot.
+2. **Adversarial — Codex `gpt-6-sol` @ high effort.** A skeptic pass that runs AFTER the primary. It does a cold independent scan of the same plan, THEN critiques the primary's findings (confirm / refute / raise / lower). Different training lineage from opus, so it breaks lineage-correlated misses that context-isolation alone cannot.
 
 The main thread (running the dominant superpower flow) then judges the reconciled finding set and writes a sidecar review file capturing the dialogue.
 
@@ -37,10 +37,10 @@ The skill is **advisory only**. It cannot override the superpower flow, edit the
    - Assemble the prompt from the template in **Adversarial pass prompt** below: substitute the plan path, the affected-paths list, and **findings-A pasted verbatim** into the `FIRST REVIEWER FINDINGS` slot.
    - Write the assembled prompt to a scratchpad file, then invoke Codex passing it as an **argument** (never stdin — stdin hangs on Windows):
      ```bash
-     codex exec -m gpt-5.6-sol -c model_reasoning_effort=high --sandbox read-only "$(cat <scratchpad>/plan-reviewer-codex-prompt.txt)"
+     codex exec -m gpt-6-sol -c model_reasoning_effort=high --sandbox read-only "$(cat <scratchpad>/plan-reviewer-codex-prompt.txt)"
      ```
      `--sandbox read-only` lets Codex read the agent spec, the plan, and the affected files itself; it needs no network and writes nothing.
-   - **Model/effort is fixed at `gpt-5.6-sol` @ `high`.** This is within standing policy and needs no approval. Do NOT escalate to `xhigh` — sol@xhigh requires explicit owner approval first.
+   - **Model/effort is fixed at `gpt-6-sol` @ `high`.** This is within standing policy and needs no approval. Do NOT escalate to `xhigh` — sol@xhigh requires explicit owner approval first.
    - Codex returns **cold findings** (its own independent scan) plus **verdicts** on each findings-A line. Call this **findings-B**.
    - Failure handling: if the command errors, returns non-zero, times out, or emits no parseable schema block, discard findings-B, set a `codex_failed` note, and continue with opus-only.
 6. **Reconcile** findings-A and findings-B into one set for the main thread:
