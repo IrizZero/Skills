@@ -1,0 +1,23 @@
+{
+  "name": "amier-workflow-kit",
+  "version": "0.1.0",
+  "description": "Focused planning, review, documentation, database, and design workflows for Codex.",
+  "author": {
+    "name": "Amier Ashraf Hadi"
+  },
+  "repository": "https://github.com/IrizZero/Skills",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Amier Workflow Kit",
+    "shortDescription": "Practical review and thinking workflows for Codex",
+    "longDescription": "Ten focused workflows for extracting project decisions, reviewing plans and solutions, checking YAGNI, advising on databases and interfaces, creating research briefs, and guiding setup conversations.",
+    "developerName": "Amier Ashraf Hadi",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write", "Interactive"],
+    "defaultPrompt": [
+      "Review my implementation plan against this repository.",
+      "Pressure-test this idea before I commit to it.",
+      "Turn my project thinking into a README and ADRs."
+    ]
+  }
+}

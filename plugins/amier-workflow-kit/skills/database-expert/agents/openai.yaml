@@ -1,0 +1,7 @@
+interface:
+  display_name: "Database Expert"
+  short_description: "Review SQL, schemas, indexes, and migrations"
+  default_prompt: "Use $database-expert to review this database design and its risks."
+
+policy:
+  allow_implicit_invocation: false

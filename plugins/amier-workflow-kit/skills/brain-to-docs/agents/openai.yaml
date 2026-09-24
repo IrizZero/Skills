@@ -1,0 +1,4 @@
+interface:
+  display_name: "Brain to Docs"
+  short_description: "Turn project thinking into durable documentation"
+  default_prompt: "Use $brain-to-docs to extract my project vision into a README and ADRs."

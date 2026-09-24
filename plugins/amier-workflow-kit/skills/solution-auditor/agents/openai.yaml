@@ -1,0 +1,7 @@
+interface:
+  display_name: "Solution Auditor"
+  short_description: "Generate an independent set of ranked options"
+  default_prompt: "Use $solution-auditor to give me an independent second opinion on this approach."
+
+policy:
+  allow_implicit_invocation: false

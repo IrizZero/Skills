@@ -1,0 +1,7 @@
+interface:
+  display_name: "Plan Reviewer"
+  short_description: "Independently critique an implementation plan"
+  default_prompt: "Use $plan-reviewer to review this implementation plan against the repository."
+
+policy:
+  allow_implicit_invocation: false
