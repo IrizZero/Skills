@@ -34,7 +34,7 @@
   "commands": ["pipeline_zoho-ops.md"],
   "notSynced": [
     ".credentials.json", "*.key", "*.pem", ".env",
-    "plugins/ (binaries reinstall from marketplace)",
+    "third-party plugin binaries (reinstall from marketplace; first-party source may live under plugins/)",
     "session state (projects/ sessions/ tasks/ telemetry/ shell-snapshots/ file-history/)"
   ]
 }

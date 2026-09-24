@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Prompt"
+  short_description: "Create a rigorous deep-research assignment"
+  default_prompt: "Use $research-prompt to turn this research need into a self-contained assignment."

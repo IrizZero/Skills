@@ -19,6 +19,16 @@ The intended flow: on a new machine you tell its Claude Code agent *"install my 
 
 Plugin **binaries are not stored** — they reinstall from their marketplace via `settings.json`. Secrets and session state are never committed (see `.gitignore`).
 
+## Codex plugin
+
+The Claude backup remains the source for `skills/`, `agents/`, and `commands/`.
+The Codex-compatible distribution lives separately at
+`plugins/amier-workflow-kit/` and is exposed for local testing through
+`.agents/plugins/marketplace.json`.
+
+Do not install the plugin alongside standalone Codex skills with the same names.
+Codex does not merge same-named skills, so both copies can appear and drift.
+
 ---
 
 ## Installing agent: do this

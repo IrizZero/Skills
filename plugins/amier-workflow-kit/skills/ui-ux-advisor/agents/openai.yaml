@@ -1,0 +1,7 @@
+interface:
+  display_name: "UI UX Advisor"
+  short_description: "Give stack-aware UI and UX recommendations"
+  default_prompt: "Use $ui-ux-advisor to review this interface decision against the project."
+
+policy:
+  allow_implicit_invocation: false

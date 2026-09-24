@@ -1,0 +1,7 @@
+interface:
+  display_name: "Stress Test"
+  short_description: "Pressure-test an idea through focused questions"
+  default_prompt: "Use $stress-test to challenge this idea one question at a time."
+
+policy:
+  allow_implicit_invocation: false

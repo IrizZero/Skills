@@ -1,0 +1,7 @@
+interface:
+  display_name: "Setup Help"
+  short_description: "Guide setup one clear action at a time"
+  default_prompt: "Use $setup-help to walk me through this setup one step at a time."
+
+policy:
+  allow_implicit_invocation: false

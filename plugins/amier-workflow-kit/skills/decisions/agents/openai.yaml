@@ -1,0 +1,7 @@
+interface:
+  display_name: "Decision Audit"
+  short_description: "Revisit uncertain choices made during the task"
+  default_prompt: "Use $decisions to audit the uncertain choices made during this task."
+
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,7 @@
+interface:
+  display_name: "YAGNI Guardian"
+  short_description: "Find scope creep and needless complexity in plans"
+  default_prompt: "Use $yagni-guardian to audit this plan for over-engineering."
+
+policy:
+  allow_implicit_invocation: false
