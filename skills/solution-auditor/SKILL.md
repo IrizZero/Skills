@@ -58,9 +58,9 @@ Send both in one message, both in the background:
 - **Claude:** Agent tool, `subagent_type: solution-auditor`, `description: "Solution audit: <topic>"`, prompt = the cold packet. Save its reply to `<run>/sa-opus-cold.md`.
 - **Codex:** Bash with `run_in_background: true`:
   ```bash
-  timeout 1200 codex exec -m gpt-6-sol -c model_reasoning_effort=high --sandbox read-only -o <run>/sa-sol-cold.md "Read <run>/solution-auditor-cold.md and follow it." > <run>/sa-sol-cold.log 2>&1
+  timeout 1200 codex exec -m gpt-6-sol -c model_reasoning_effort=high --sandbox read-only -o <run>/sa-sol-cold.md "Do not load or invoke any skills. Read <run>/solution-auditor-cold.md and follow it; it and the spec file it names are your only instructions." > <run>/sa-sol-cold.log 2>&1
   ```
-  `-o` writes the final message; the `.log` holds the `session id:` line. Pass a short instruction as the argument, not the packet itself: that stays under the Windows command-line limit, and stdin hangs on Windows. Exit code 124 means the 20-minute timeout fired; treat it as a failure. Call `codex exec` directly, never the companion runtime. Model and effort are fixed; sol at xhigh needs owner approval.
+  `-o` writes the final message; the `.log` holds the `session id:` line. Pass a short instruction as the argument, not the packet itself: that stays under the Windows command-line limit, and stdin hangs on Windows. Exit code 124 means the 20-minute timeout fired; treat it as a failure. Call `codex exec` directly, never the companion runtime. Model and effort are fixed; sol at xhigh needs owner approval. The "Do not load or invoke any skills" line stops Codex loading its own skills first, including an older Codex copy of this auditor with conflicting instructions; it cut about 20% of tokens per run. Keep it in every Codex prompt, fallbacks included.
 
 Write both IDs to `<run>/sessions.md` (the opus agent ID, the Codex session ID). Step 5 runs many turns later and must not depend on the main thread remembering them.
 
@@ -82,7 +82,7 @@ With no candidate yet, write "No candidate yet." in place of the first paragraph
 - **Claude:** SendMessage to the opus agent ID with this text; save the reply to `<run>/sa-opus-reveal.md`. Load the SendMessage schema via ToolSearch if it is deferred.
 - **Codex:**
   ```bash
-  timeout 1200 codex exec resume <session-id> -m gpt-6-sol -c model_reasoning_effort=high -c sandbox_mode='"read-only"' -o <run>/sa-sol-reveal.md "Read <run>/solution-auditor-reveal.md and follow it." > <run>/sa-sol-reveal.log 2>&1
+  timeout 1200 codex exec resume <session-id> -m gpt-6-sol -c model_reasoning_effort=high -c sandbox_mode='"read-only"' -o <run>/sa-sol-reveal.md "Do not load or invoke any skills. Read <run>/solution-auditor-reveal.md and follow it." > <run>/sa-sol-reveal.log 2>&1
   ```
   `resume` has no `--sandbox` flag; the `-c sandbox_mode` override does the same.
 
