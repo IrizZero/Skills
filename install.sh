@@ -2,7 +2,9 @@
 # install.sh - deploy this repo's Claude config into ~/.claude  (macOS / Linux / bash)
 #
 # Additive + non-destructive: copies skills/, agents/, commands/ into ~/.claude/.
-# Any existing same-named item is moved to <name>.bak-<timestamp> before overwrite.
+# Any existing same-named item is moved to ~/.claude/install-backups/<timestamp>/<group>/<name>
+# before overwrite. Backups stay out of skills/ agents/ commands/, where the loaders would
+# pick them up as extra skills. (~/.claude/backups/ is Claude Code's own folder - not used.)
 # Does NOT touch settings.json or CLAUDE.md - those need a judgment merge (see README).
 #
 # Usage:
@@ -29,8 +31,9 @@ for g in skills agents commands; do
     name="$(basename "$item")"
     dest="$destdir/$name"
     if [ -e "$dest" ]; then
-      if [ "$DRY" = 1 ]; then echo "[dry] backup $dest -> $dest.bak-$STAMP"
-      else mv "$dest" "$dest.bak-$STAMP"; fi
+      bakdir="$CLAUDE_HOME/install-backups/$STAMP/$g"
+      if [ "$DRY" = 1 ]; then echo "[dry] backup $dest -> $bakdir/$name"
+      else mkdir -p "$bakdir"; mv "$dest" "$bakdir/$name"; fi
       backed=$((backed+1))
     fi
     if [ "$DRY" = 1 ]; then echo "[dry] copy   $name -> $dest"

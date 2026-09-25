@@ -2,7 +2,9 @@
 # install.ps1 - deploy this repo's Claude config into ~/.claude  (Windows / PowerShell)
 #
 # Additive + non-destructive: copies skills/, agents/, commands/ into ~/.claude/.
-# Any existing same-named item is moved to <name>.bak-<timestamp> before overwrite.
+# Any existing same-named item is moved to ~/.claude/install-backups/<timestamp>/<group>/<name>
+# before overwrite. Backups stay out of skills/ agents/ commands/, where the loaders would
+# pick them up as extra skills. (~/.claude/backups/ is Claude Code's own folder - not used.)
 # Does NOT touch settings.json or CLAUDE.md - those need a judgment merge (see README).
 #
 # Usage:
@@ -36,9 +38,13 @@ foreach ($g in @("skills","agents","commands")) {
   foreach ($item in Get-ChildItem $srcDir) {
     $dest = Join-Path $destDir $item.Name
     if (Test-Path $dest) {
-      $bak = "$dest.bak-$stamp"
+      $bakDir = Join-Path (Join-Path (Join-Path $ClaudeHome "install-backups") $stamp) $g
+      $bak = Join-Path $bakDir $item.Name
       if ($WhatIf) { Write-Host "[dry] backup $dest -> $bak" }
-      else { Move-Item $dest $bak }
+      else {
+        if (-not (Test-Path $bakDir)) { New-Item -ItemType Directory -Path $bakDir -Force | Out-Null }
+        Move-Item $dest $bak
+      }
       $backedUp++
     }
     if ($WhatIf) { Write-Host "[dry] copy   $($item.Name) -> $dest" }

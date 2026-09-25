@@ -35,7 +35,9 @@ Codex does not merge same-named skills, so both copies can appear and drift.
 
 You are a Claude Code agent asked to install this repo onto **this** box. Follow exactly. `manifest.json` is the machine-readable version of these steps.
 
-**1. Run the mechanical installer** (copies `skills/`, `agents/`, `commands/` into `~/.claude/`; backs up any same-named item to `<name>.bak-<timestamp>`).
+**1. Run the mechanical installer** (copies `skills/`, `agents/`, `commands/` into `~/.claude/`; moves any same-named item to `~/.claude/install-backups/<timestamp>/<group>/<name>`).
+
+Backups live outside `skills/`, `agents/`, `commands/` on purpose: a backup folder inside `skills/` loads as an extra skill. If an older installer left `*.bak-*` items inside those folders, move them into `~/.claude/install-backups/` or delete them.
 
 - Windows / PowerShell: `./install.ps1`  (dry run first: `./install.ps1 -WhatIf`)
 - macOS / Linux / bash: `bash install.sh`  (dry run first: `DRY_RUN=1 bash install.sh`)
@@ -79,4 +81,4 @@ If skill/agent/command counts changed, bump them in `manifest.json`.
 
 ## Not synced (by design)
 
-Secrets (`.credentials.json`, `*.key`, `*.pem`, `.env`), install-time `*.bak-*` backups, and Claude session state (`projects/ sessions/ tasks/ telemetry/ shell-snapshots/ file-history/`) are gitignored or simply never copied. Plugin binaries reinstall from the marketplace.
+Secrets (`.credentials.json`, `*.key`, `*.pem`, `.env`), install-time backups (`install-backups/`), and Claude session state (`projects/ sessions/ tasks/ telemetry/ shell-snapshots/ file-history/`) are gitignored or simply never copied. Plugin binaries reinstall from the marketplace.
