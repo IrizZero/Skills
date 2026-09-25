@@ -233,16 +233,14 @@ Skill at `~/.claude/skills/solution-auditor/`, subagent at `~/.claude/agents/sol
 
 When `superpowers:brainstorming` reaches step 4 ("Propose 2-3 approaches"), the main thread (still running the brainstorming flow) MUST:
 
-1. Invoke the `solution-auditor` skill BEFORE proposing its own 2-3 approaches.
-2. Receive the auditor's structured output: 3-5 ranked alternatives + sycophancy tier.
-3. Reconcile the auditor's alternatives with what the main thread was about to propose. Present the merged set to the user.
-4. If sycophancy tier is HARD: do NOT proceed until the main thread emits one paragraph of technical justification for the current direction (no agreement language, no user-pleasing rationale). If no justification exists, drop the current direction and present the auditor's alternatives as the starting set.
-5. If the user's original idea is NOT in the auditor's top-ranked alternatives: explicitly ask the user to confirm ("Auditor ranks X above your original Y - do you have context that justifies Y?").
-6. Proceed to brainstorming step 5 (present design) using the user's confirmed choice.
+1. Invoke the `solution-auditor` skill BEFORE proposing its own approaches. It runs the opus subagent and Codex `gpt-6-sol`@high in parallel. Each model first gets a cold packet (goal, quoted constraints, repo paths; the leaning direction redacted), then the direction revealed neutrally.
+2. Merge the audit with what the main thread was about to propose and present the merged set. Keep the `[opus]` / `[sol]` / `[both]` tags. `[both]` is agreement, not proof.
+3. If the user's original idea is neither model's top pick, ask: is that a preference or a technical claim, and what fact supports it?
+4. After brainstorming step 7 and before step 8, run the skill's exit check. It is skipped only when the final direction is exactly both models' post-reveal #1 pick. Show both verdicts (SUPPORTED / DELIBERATE TRADE-OFF / UNEXPLAINED) beside the spec review request.
 
-**Advisory only** - cannot block the flow except via the HARD-tier justification gate (item 4). If it fails or errors, proceed to step 5 without an audit and note the failure in chat. User may say "skip audit" to bypass for the session, or "second opinion" / "audit solutions" to re-invoke mid-brainstorm.
+**Advisory only** - never blocks the flow. If one model fails, continue with the other; if both fail, continue without an audit and note it in chat. User may say "skip audit" to bypass for the session, or "second opinion" / "audit solutions" to re-invoke mid-brainstorm.
 
-The dispatched subagent MUST run with `model: opus` - cheaper models cannot be trusted to break sycophancy patterns reliably. Do not downgrade.
+The subagent runs `model: opus` at `effort: high`, pinned by its frontmatter. Do not downgrade. The Codex pass is fixed at `gpt-6-sol`@high via `codex exec` directly (never the companion runtime); do not escalate to `xhigh` without owner approval.
 <!-- END solution-auditor -->
 
 ---
