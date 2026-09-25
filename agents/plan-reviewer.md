@@ -1,6 +1,7 @@
 ---
 name: plan-reviewer
 description: Senior-dev plan critique. Reads an implementation plan plus affected codebase files. Returns severity-tagged findings (Blockers / Warnings / Suggestions) with file:line evidence. Read-only. Refuses to edit code, edit plans, or scope-creep.
+model: opus
 tools: Read, Grep, Glob, Bash
 ---
 
