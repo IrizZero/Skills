@@ -1,150 +1,141 @@
 ---
 name: solution-auditor
-description: Use during superpowers:brainstorming step 4 to generate independent solution alternatives (3-5 ranked, occasionally 2 when the solution space is genuinely narrow) and flag sycophancy/over-agreement patterns. Auto-injects before brainstorm proposes its own approaches. ALSO invoke standalone, outside any brainstorm, whenever the user wants an independent second opinion on a design or architecture decision — phrases like "second opinion", "audit solutions", "are there better approaches?", "what are my options?", "am I missing something?", "play devil's advocate", or any request to pressure-test a chosen direction; standalone mode returns a full ranked-alternatives report. Dispatches the solution-auditor subagent (opus, fresh context) for true independence. Refuses planning-phase critique (use plan-reviewer instead).
+description: Independent second opinion on a design direction. Runs Claude opus and Codex gpt-6-sol in parallel - each first blind to the leaning direction, then shown it - and returns merged ranked alternatives with provenance tags. Auto-injects at superpowers:brainstorming step 4 before the main thread proposes approaches, and adds an exit check before the user reviews the spec. Also invoke standalone for "second opinion", "audit solutions", "are there better approaches?", "what are my options?", "am I missing something?", "play devil's advocate", or any request to pressure-test a chosen direction. Not for critiquing a written plan (use plan-reviewer).
 ---
 
 # Solution Auditor
 
-## Trigger
+Two models from different vendors audit the decision in parallel: the `solution-auditor` subagent (Claude opus, effort high) and Codex `gpt-6-sol` at high effort. Each works in one session over up to three turns:
 
-This skill is invoked in two ways:
+1. **Cold** - goal, quoted constraints and repo paths only. The leaning direction is withheld so it cannot anchor the search.
+2. **Reveal** - the candidate direction, phrased neutrally, plus verbatim conversation turns.
+3. **Exit check** (brainstorm mode only) - the final chosen direction plus the turns since the reveal.
 
-1. **Auto-inject** at `superpowers:brainstorming` step 4 ("Propose 2-3 approaches"), BEFORE the main thread proposes its own approaches. The integration snippet in user-global `~/.claude/CLAUDE.md` (added one-time at install — see project README) instructs the main thread to do this.
-2. **Manual** by the user at any time with phrases "second opinion", "audit solutions", or by directly invoking the skill by name.
+The subagent spec `~/.claude/agents/solution-auditor.md` defines the turns and their output. Both models follow that one file.
 
-The skill is also usable in **standalone** mode — i.e. invoked outside any `superpowers:*` flow. Standalone behavior is documented at the end.
+The skill is advisory and never blocks the flow. The user decides; the audit gives them evidence.
 
-## Overview
+## Modes
 
-This skill is a thin wrapper around the `solution-auditor` subagent. The subagent runs in a fresh context window (real independence), reads relevant repo state, generates 3-5 ranked solution alternatives with trade-offs (occasionally 2 when the solution space is genuinely narrow), and scores four sycophancy signals against the current brainstorming conversation. The main thread (running the dominant `brainstorming` flow) consumes the auditor's output, reconciles with its own thinking, and presents the merged set to the user.
+- **Brainstorm** - auto-injected at `superpowers:brainstorming` step 4, before the main thread proposes approaches. Cold + reveal run at step 4; the exit check runs between steps 7 and 8.
+- **Standalone** - a trigger phrase outside any flow. Cold + reveal, then a full report. No exit check.
 
-The skill is **advisory only** while inside a superpower flow. It cannot override the flow except via the documented HARD-tier sycophancy gate (see "Output handling" below).
+If the user said "skip audit" this session, skip auto-injection and say so in one line. "Second opinion" or "audit solutions" re-invokes mid-flow.
 
-## How it works
+## Step 1 - build the cold packet
 
-1. **Detect context.** Determine whether invocation is auto/manual inside `brainstorming` or standalone outside any flow. If inside a flow but the user has previously said "skip audit" this session, abort with the sentinel and a one-line note.
-2. **Build the input packet.** Extract:
-   - `user_request_summary` — one to two sentences describing what the user is brainstorming, derived from the conversation so far.
-   - `current_brainstorm_direction` — what the main thread was about to propose at step 4 (or "n/a" if the auditor was invoked before the main thread formed a direction).
-   - `repo_paths_likely_relevant` — a short list of paths in the current working directory that look relevant to the topic. Use `Glob` and `Grep` from the main thread to surface likely paths. Pass paths only — the subagent does its own reads.
-   - `conversation_signals` — verbatim conversation turns for the auditor to score sycophancy on. The hazard here: the main thread building this packet is the same party the sycophancy score judges, so letting it hand-pick "relevant" quotes invites it to omit its own agreement turns and self-launder a clean score. Defeat that by forwarding the **last 6–10 turns verbatim** — do not paraphrase, summarize, or cherry-pick. On top of that verbatim window you MAY *tag* turns of interest (AI agreed quickly, AI changed position, user pressure phrases like "just do it"/"trust me", the AI's most recent statement of the chosen direction + its justification or noted absence). Tags are hints; the verbatim window is the ground truth the auditor scores against. If standalone (no conversation), set this to `n/a — standalone mode`.
-3. **Dispatch the subagent** via the Agent tool:
-   - `subagent_type: solution-auditor`
-   - `model: opus` (the subagent's frontmatter pins this; do not override)
-   - `description: "Solution audit: <topic>"`
-   - `prompt`: a single markdown block containing the four input packet fields, plus an instruction to follow the strict output schema (defined in the subagent file).
-4. **Receive the subagent's output** — a single markdown message.
-5. **Validate the output** — see "Output handling" below.
-6. **Format the injection block** and emit it into the brainstorming flow.
-7. **End with the sentinel** `[expert-consult-complete]` so the brainstorming flow resumes step 4.
-
-## Input packet shape (passed to the subagent)
+Make a fresh folder per invocation, `<run>` = `<scratchpad>/sa-<HHMMSS>`, so a second "second opinion" run never overwrites the first. Every file below lives in it. Write `<run>/solution-auditor-cold.md`:
 
 ```markdown
-# Solution audit request
+# Solution audit - turn 1 (cold)
 
-## user_request_summary
-<1-2 sentences>
+Spec: read ~/.claude/agents/solution-auditor.md and follow its Turn 1.
 
-## current_brainstorm_direction
-<one paragraph, or "n/a — auditor invoked before main thread formed a direction">
+## Goal
+<what must be achieved, 1-2 sentences, no mechanism named>
 
-## repo_paths_likely_relevant
-- <path 1>
-- <path 2>
-- ...
+## Constraints
+- "<short verbatim quote>" - user, turn <n>
+- <repo fact> - <file:line>
 
-## conversation_signals
-<verbatim quotes with turn-number labels, or "n/a — standalone mode">
+## Repo paths
+- <path>
 
-## instructions
-Generate 3-5 ranked solution alternatives plus a tiered sycophancy assessment. Follow the output schema in your subagent definition exactly. End with `[expert-consult-complete]`.
+## Git history
+$ git log --oneline -20 -- <paths>
+<output, unedited>
 ```
 
-## Output handling
+- Redact the proposed mechanism, the main thread's direction and anyone's preference. Keep every constraint: "use Redis because we can't add a DB" becomes the constraint `"we can't add a DB"`.
+- Quote constraints; do not paraphrase them.
+- If a constraint cannot be stated without naming the mechanism, keep it and label the run **not blind**.
+- Include the git history section only when history bears on the decision.
 
-The subagent's expected output schema is defined in `agents/solution-auditor.md`. Validation checks:
+## Step 2 - cold turn, in parallel
 
-- Four sections present (match on heading *prefix* — the `### Alternatives` heading carries a `(N=…)` suffix, so a substring/prefix check is required, not an exact-line match): `## Solution Audit`, `### Alternatives`, `### Sycophancy Assessment`, `### User-Override Reminder`.
-- Sentinel `[expert-consult-complete]` present at the end.
-- `Alternatives` table has between 2 and 5 *data* rows — exclude the header row and the `|---|` separator from the count (3-5 expected; 2 only when solution space is genuinely narrow).
-- `Sycophancy Assessment` includes a tier of `NONE`, `SOFT`, or `HARD`.
+Send both in one message, both in the background:
 
-If any check fails, emit a one-line warning to the main thread: "solution-auditor output malformed — proceeding without audit." Then emit the sentinel. The brainstorming flow continues vanilla.
+- **Claude:** Agent tool, `subagent_type: solution-auditor`, `description: "Solution audit: <topic>"`, prompt = the cold packet. Save its reply to `<run>/sa-opus-cold.md`.
+- **Codex:** Bash with `run_in_background: true`:
+  ```bash
+  timeout 1200 codex exec -m gpt-6-sol -c model_reasoning_effort=high --sandbox read-only -o <run>/sa-sol-cold.md "Read <run>/solution-auditor-cold.md and follow it." > <run>/sa-sol-cold.log 2>&1
+  ```
+  `-o` writes the final message; the `.log` holds the `session id:` line. Pass a short instruction as the argument, not the packet itself: that stays under the Windows command-line limit, and stdin hangs on Windows. Exit code 124 means the 20-minute timeout fired; treat it as a failure. Call `codex exec` directly, never the companion runtime. Model and effort are fixed; sol at xhigh needs owner approval.
 
-If all checks pass, format the injection block as:
+Write both IDs to `<run>/sessions.md` (the opus agent ID, the Codex session ID). Step 5 runs many turns later and must not depend on the main thread remembering them.
+
+## Step 3 - reveal turn
+
+Write `<run>/solution-auditor-reveal.md`:
 
 ```markdown
-> **Independent solution audit** (from solution-auditor subagent, opus, fresh context)
->
-> <alternatives table verbatim>
->
-> **Auditor's pick:** <#1 row's approach name>
-> **Rationale:** <rationale paragraph from subagent>
->
-> <sycophancy block — include ONLY if tier is SOFT or HARD>
->
-> <user-override prompt — include ONLY if the user's original idea is NOT alternative #1>
+# Solution audit - turn 2 (reveal)
+
+One candidate under consideration: <direction or user preference, stated neutrally, no advocate named>. Where does it rank against your cold list? What does it miss?
+
+## Conversation turns (verbatim)
+<last 6-10 turns, unedited>
 ```
 
-### Sycophancy block format (SOFT or HARD only)
+With no candidate yet, write "No candidate yet." in place of the first paragraph.
+
+- **Claude:** SendMessage to the opus agent ID with this text; save the reply to `<run>/sa-opus-reveal.md`. Load the SendMessage schema via ToolSearch if it is deferred.
+- **Codex:**
+  ```bash
+  timeout 1200 codex exec resume <session-id> -m gpt-6-sol -c model_reasoning_effort=high -c sandbox_mode='"read-only"' -o <run>/sa-sol-reveal.md "Read <run>/solution-auditor-reveal.md and follow it." > <run>/sa-sol-reveal.log 2>&1
+  ```
+  `resume` has no `--sandbox` flag; the `-c sandbox_mode` override does the same.
+
+If a model's continuation fails, write the cold packet followed by the reveal text to `<run>/fallback-<model>.md`, send that model one fresh prompt pointing at it, and label its result **not blind**. If a model fails entirely, continue with the other and say which one is missing.
+
+## Step 4 - merge and present
+
+- One table of all approaches, each tagged `[opus]`, `[sol]` or `[both]`. Dedupe by mechanism, not wording.
+- `[both]` means two models agreed on the same brief. It is agreement, not proof.
+- Where ranks differ, show both. Do not average them away.
+- Spot-check each cited `file:line` before presenting. Drop a citation that does not hold and say so.
+
+Brainstorm mode injects:
 
 ```markdown
-> **Sycophancy tier:** <SOFT|HARD>
-> **Signals tripped:** <list of signal names that scored 1, with one-line evidence each>
-> **Recommended action:** <subagent's one-sentence recommendation>
+> **Independent solution audit** (opus + gpt-6-sol, cold then reveal)
+>
+> | # | Approach | Source | Rank opus / sol | Risk | Key trade-off |
+> |---|---|---|---|---|---|
+>
+> **Picks:** opus - <name>; sol - <name>
+> **Candidate verdict:** opus - <one line>; sol - <one line>
+> **Missed constraints:** <from the reveal, or "none">
+> **User override check:** <only when the user's own idea is neither model's pick> Your idea (<paraphrase>) is not the top pick. Is that a preference or a technical claim? If technical, what fact supports it?
+
+[expert-consult-complete]
 ```
 
-### User-override prompt format (when user's idea != #1)
+Add "not blind: <model>" to the heading line when a fallback ran.
+
+Standalone mode gives a full report instead: the merged table, each model's pick, rationale and rejected list, both reveal verdicts, missing evidence, and the cold packet as sent.
+
+## Step 5 - exit check (brainstorm mode)
+
+Run it the first time the flow passes from brainstorming step 7 (spec self-review) to step 8 (user reviews spec). The one skip: when the final direction is the same named approach as both models' #1 pick after the reveal (look it up in `<run>/sa-opus-reveal.md` and `<run>/sa-sol-reveal.md`; if either reveal changed the ranking, use the new #1), say "exit check skipped: final direction is both models' pick" and do not run it. Otherwise run it; do not judge whether it is needed. If the spec review loops back and the chosen direction changes, run it again on the same sessions; if the direction is unchanged, do not rerun.
+
+Read the IDs from `<run>/sessions.md`. Send each model its third turn by the same continuation method, saving replies to `<run>/sa-<model>-exit.md`:
 
 ```markdown
-> **User override check:** Your original idea (<short paraphrase>) is not the auditor's top pick (#1 is <auditor's #1 approach name>). Do you have context that justifies your original direction? If yes, state the reason and we'll proceed with it; if no, consider switching.
+# Solution audit - turn 3 (exit check)
+
+Final chosen direction: <from the spec>
+
+## Conversation turns since the reveal (verbatim)
+<unedited>
 ```
 
-### HARD-tier justification gate
+Show both verdicts next to the spec review request. UNEXPLAINED is information for the user, not a block.
 
-If the sycophancy tier is `HARD`, the brainstorming flow must not proceed to step 5 until the main thread emits one paragraph of *technical* justification for the current direction. The justification must name a concrete technical reason — a performance characteristic, a hard constraint, an existing repo pattern, or a specific failure mode it avoids. Non-agreement prose alone does not clear the gate: "this is the cleaner design" is not a reason; "this avoids the N+1 query at `repo.py:88`" is. No agreement language ("you're right", "good call"), no user-pleasing rationale ("because you said so"). If the main thread cannot produce such a justification, drop the current direction and present the auditor's alternatives as the new starting set.
+If a session can no longer be resumed, write the cold packet, that model's earlier outputs and the turn 3 text to `<run>/fallback-<model>-exit.md`, send a fresh prompt pointing at it, and label the result **not blind**.
 
-Enforcement is self-policed: the subagent has already returned and ran in a fresh context, so it cannot verify the justification. The main thread — the same party the gate is checking — judges its own output. The concrete-reason bar above exists to make that self-check harder to fake; if a user is present, they are the backstop.
+## Boundaries
 
-This is the ONLY case in which the skill blocks the superpower flow. All other failures (malformed output, dispatch failures, timeouts) are non-blocking.
-
-## Per-session skip
-
-If the user says any of "skip audit", "skip audit this session", "don't auto-inject solution-auditor", or equivalent, the main thread MUST remember this for the duration of the current Claude Code session and skip future auto-injections of this skill until the session ends. The mechanism is in-memory only — no file is written, no setting persists. A fresh session restores default behavior.
-
-## Standalone mode
-
-When invoked outside any `superpowers:*` flow:
-
-- The `conversation_signals` field is set to `n/a — standalone mode`.
-- The subagent's `Sycophancy Assessment` section will return `Tier: NONE` with all signals marked `n/a`.
-- The skill's output tier may go heavier — emit a full markdown report inline (alternatives table + rationale + risk callouts + per-alternative notes) instead of the compressed inline injection block.
-- The standalone-mode response does NOT need to end with the sentinel — there's no superpower flow to hand back to. (Emitting the sentinel is harmless if you do.)
-
-## Integration with superpowers
-
-This skill is invoked from `superpowers:brainstorming`.
-
-**Sentinel:** Always end with `[expert-consult-complete]` to return control to the dominant superpower flow (except in standalone mode, as noted above).
-
-**Forbidden while inside a superpower flow:**
-- Overriding the brainstorming flow (except via the documented HARD-tier gate above).
-- Auto-promoting to a heavier output tier. The compressed inline injection block is the only tier permitted inside a flow. Save full reports for standalone mode.
-- Suggesting that the user re-run brainstorming or that the brainstorming flow restart — only the user or the superpower flow itself decides that.
-- Editing files, suggesting plan steps, or critiquing the brainstorming skill's own process.
-
-**User escape phrases inside a flow:**
-- "skip audit" / "skip audit this session" / "don't auto-inject solution-auditor" — disables auto-injection for the current session.
-- "second opinion" / "audit solutions" — re-invokes the skill mid-flow.
-
-## Recursive invocation
-
-If this skill is invoked from within a `solution-auditor` subagent context (the subagent tries to call its own skill), abort immediately with a one-line error and the sentinel. The auditor cannot self-invoke.
-
-## Boundary rules
-
-- The skill is **read-only** for project files — it never edits anything.
-- The dispatched subagent has only `Read`, `Grep`, `Glob` tools. No `Edit`, `Write`, `Bash`, `WebSearch`, `WebFetch`.
-- Even on error, the skill returns control to the dominant flow via the sentinel rule documented in "Integration with superpowers" above. The only documented exception is standalone mode.
-- The subagent definition lives at `agents/solution-auditor.md` and the dispatching main thread assumes Claude Code's agent loader resolves `subagent_type: solution-auditor` to that file (the install copies it to `~/.claude/agents/solution-auditor.md`).
+- Read-only for project files. Only scratchpad files are written.
+- The subagent has `Read`, `Grep`, `Glob` only. Codex runs `--sandbox read-only`.
+- Not for critiquing a written plan: that is `plan-reviewer`.
