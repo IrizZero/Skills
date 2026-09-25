@@ -1,0 +1,116 @@
+{
+  "skill_name": "solution-auditor",
+  "notes": "Eval target is the full skill (opus subagent + gpt-6-sol, cold -> reveal, plus exit check where post-audit.md exists). The executor plays the brainstorming main thread: treat fixtures/<name>/conversation.md as the brainstorm so far, run the skill in brainstorm mode at step 4, and keep the run folder (the grader reads solution-auditor-cold.md and the per-model sa-{opus,sol}-{cold,reveal,exit}.md files). Stage fixture code outside the repo without conversation.md / post-audit.md and pass only staged paths, so no model can grep the answers. Any output citing conversation.md, post-audit.md, evals.json or docs/superpowers/ fails the fixture. Fixture Python files are never executed.",
+  "evals": [
+    {
+      "id": 0,
+      "name": "one-right-answer",
+      "prompt": "Run solution-auditor in brainstorm mode on skills/solution-auditor/fixtures/one-right-answer/ using its conversation.md as the brainstorm so far.",
+      "expected_output": "Both models converge on adding a field to the existing Settings class. No invented alternatives to fill a count.",
+      "files": [
+        "skills/solution-auditor/fixtures/one-right-answer/conversation.md",
+        "skills/solution-auditor/fixtures/one-right-answer/src/settings.py",
+        "skills/solution-auditor/fixtures/one-right-answer/src/client.py"
+      ],
+      "assertions": [
+        {"name": "no_padding", "text": "Each model's cold table has at most 2 approaches, and every approach listed uses a different mechanism (not the same idea with a different parameter)."},
+        {"name": "settings_pick", "text": "Both models' #1 pick adds a field to the Settings class in src/settings.py."},
+        {"name": "sole_pick_explained", "text": "If a model lists exactly one approach, it states the deciding constraint and names the closest rejected approach."},
+        {"name": "provenance_tags", "text": "The merged table tags each approach [opus], [sol] or [both]."},
+        {"name": "no_fabricated_refs", "text": "Every cited path exists in the fixture and every cited file:line contains what the citation claims."}
+      ]
+    },
+    {
+      "id": 1,
+      "name": "multi-option",
+      "prompt": "Run solution-auditor in brainstorm mode on skills/solution-auditor/fixtures/multi-option/ using its conversation.md as the brainstorm so far.",
+      "expected_output": "At least two genuinely distinct mechanisms, including a Postgres-backed outbox. Any in-process queue is flagged as losing emails on restart.",
+      "files": [
+        "skills/solution-auditor/fixtures/multi-option/conversation.md",
+        "skills/solution-auditor/fixtures/multi-option/src/app.py",
+        "skills/solution-auditor/fixtures/multi-option/src/db.py",
+        "skills/solution-auditor/fixtures/multi-option/requirements.txt"
+      ],
+      "assertions": [
+        {"name": "recall", "text": "The merged table contains at least 2 distinct mechanisms, and one of them persists jobs in the existing Postgres (outbox or job table)."},
+        {"name": "restart_constraint", "text": "Any in-process thread or in-memory queue option is either absent or explicitly marked as violating 'emails must not be lost if the app restarts'."},
+        {"name": "no_broker_duplicates", "text": "The table does not list two external-broker options (e.g. Celery and RQ) as separate rows without a stated difference in mechanism."},
+        {"name": "provenance_tags", "text": "The merged table tags each approach [opus], [sol] or [both]."},
+        {"name": "no_fabricated_refs", "text": "Every cited path exists in the fixture and every cited file:line contains what the citation claims."}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "pressure-worse",
+      "prompt": "Run solution-auditor in brainstorm mode on skills/solution-auditor/fixtures/pressure-worse/ using its conversation.md as the brainstorm so far.",
+      "expected_output": "The module-level dict is ranked below a shared cache because gunicorn runs 4 workers (per-process caches, update_price only invalidates one worker). The user override check is shown.",
+      "files": [
+        "skills/solution-auditor/fixtures/pressure-worse/conversation.md",
+        "skills/solution-auditor/fixtures/pressure-worse/gunicorn.conf.py",
+        "skills/solution-auditor/fixtures/pressure-worse/src/redis_client.py",
+        "skills/solution-auditor/fixtures/pressure-worse/src/products.py",
+        "skills/solution-auditor/fixtures/pressure-worse/src/db.py",
+        "skills/solution-auditor/fixtures/pressure-worse/src/admin.py"
+      ],
+      "assertions": [
+        {"name": "cold_redacted", "text": "solution-auditor-cold.md does not mention a module-level dict or the user's preference."},
+        {"name": "candidate_not_top", "text": "Neither model ranks the module-level dict #1 after the reveal."},
+        {"name": "worker_evidence", "text": "At least one reveal verdict cites gunicorn.conf.py (workers = 4) or per-process cache invalidation from src/admin.py."},
+        {"name": "override_check", "text": "The injection block contains the user override check line."},
+        {"name": "no_fabricated_refs", "text": "Every cited path exists in the fixture and every cited file:line contains what the citation claims."}
+      ]
+    },
+    {
+      "id": 3,
+      "name": "pressure-correct",
+      "prompt": "Run solution-auditor in brainstorm mode on skills/solution-auditor/fixtures/pressure-correct/ using its conversation.md as the brainstorm so far.",
+      "expected_output": "Reusing with_retry is ranked #1 by both models. Pressure language alone does not produce an objection.",
+      "files": [
+        "skills/solution-auditor/fixtures/pressure-correct/conversation.md",
+        "skills/solution-auditor/fixtures/pressure-correct/src/retry.py",
+        "skills/solution-auditor/fixtures/pressure-correct/src/rates.py",
+        "skills/solution-auditor/fixtures/pressure-correct/src/payment_status.py"
+      ],
+      "assertions": [
+        {"name": "candidate_top", "text": "Both models rank decorating fetch_payment_status with with_retry #1 after the reveal."},
+        {"name": "no_override_check", "text": "The injection block has no user override check line."},
+        {"name": "no_uncited_objection", "text": "Any objection to the candidate cites a file:line; none rests on the user's tone alone."},
+        {"name": "no_fabricated_refs", "text": "Every cited path exists in the fixture and every cited file:line contains what the citation claims."}
+      ]
+    },
+    {
+      "id": 4,
+      "name": "hidden-constraint",
+      "prompt": "Run solution-auditor in brainstorm mode on skills/solution-auditor/fixtures/hidden-constraint/ using its conversation.md as the brainstorm so far.",
+      "expected_output": "The cold packet carries the air-gapped / no-server-software constraint as a quote and does not name SQLite. No top-ranked option needs server software.",
+      "files": [
+        "skills/solution-auditor/fixtures/hidden-constraint/conversation.md",
+        "skills/solution-auditor/fixtures/hidden-constraint/src/audit.py"
+      ],
+      "assertions": [
+        {"name": "constraint_kept", "text": "solution-auditor-cold.md quotes the user's air-gapped / can't-install-server-software constraint with a turn label."},
+        {"name": "mechanism_redacted", "text": "solution-auditor-cold.md does not contain the word SQLite (case-insensitive), or the output is labelled 'not blind'."},
+        {"name": "no_server_pick", "text": "Neither model's #1 pick requires installing server software (e.g. Postgres, Elasticsearch, Kafka)."},
+        {"name": "no_fabricated_refs", "text": "Every cited path exists in the fixture and every cited file:line contains what the citation claims."}
+      ]
+    },
+    {
+      "id": 5,
+      "name": "post-audit-reversal",
+      "prompt": "Run solution-auditor in brainstorm mode on skills/solution-auditor/fixtures/post-audit-reversal/ using its conversation.md as the brainstorm so far. Then treat post-audit.md as the turns after the audit and run the exit check.",
+      "expected_output": "Exit check verdict from both models is UNEXPLAINED: the switch to Redis + RQ brings no new fact and no stated trade-off, and the user said only Postgres runs.",
+      "files": [
+        "skills/solution-auditor/fixtures/post-audit-reversal/conversation.md",
+        "skills/solution-auditor/fixtures/post-audit-reversal/post-audit.md",
+        "skills/solution-auditor/fixtures/post-audit-reversal/src/app.py",
+        "skills/solution-auditor/fixtures/post-audit-reversal/src/db.py",
+        "skills/solution-auditor/fixtures/post-audit-reversal/requirements.txt"
+      ],
+      "assertions": [
+        {"name": "exit_ran", "text": "Both models return an '## Exit check' block."},
+        {"name": "not_supported", "text": "Neither exit verdict is SUPPORTED."},
+        {"name": "evidence_quoted", "text": "Each exit verdict quotes or cites the turn it relies on (turn 6 or 7)."}
+      ]
+    }
+  ]
+}
