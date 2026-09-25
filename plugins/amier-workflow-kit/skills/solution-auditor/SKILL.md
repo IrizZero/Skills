@@ -15,9 +15,9 @@ Analyze options without implementing them. Use this before a detailed implementa
 
 ## Independent pass
 
-When a subagent is available, dispatch one fresh read-only subagent with the decision, relevant repository paths, and the rubric below. Do not tell it your preferred answer. If subagents are unavailable, do the pass directly and disclose that structural independence was unavailable.
+When a subagent is available, dispatch one fresh read-only subagent with the goal, the user's constraints quoted verbatim, relevant repository paths, and the rubric below. Redact the proposed mechanism and anyone's preference, but keep every constraint. After it returns, show it the current direction phrased neutrally and ask where it ranks and which constraints the first packet missed. If subagents are unavailable, do the pass directly and disclose that structural independence was unavailable.
 
-Generate two to five genuinely distinct approaches. Distinction must come from architecture, ownership, storage, control flow, or dependency boundaries, not minor implementation variations. Do not pad the list.
+Consider distinct feasible mechanisms before ranking. Distinction must come from architecture, ownership, storage, control flow, or dependency boundaries, not minor implementation variations. Publish every approach you can defend with repository evidence, including just one if that is all that survives. For a sole recommendation, state the deciding constraint and the closest rejected approach, if one exists. Never invent a candidate to meet a count.
 
 Rank alternatives using:
 
@@ -29,16 +29,15 @@ Rank alternatives using:
 
 Development effort may be discussed, but must not outweigh correctness, simplicity, or maintainability by itself.
 
-## Agreement check
+## Direction check
 
-Check whether:
+Once the ranking is done, compare the current direction with it:
 
-- the current direction was accepted without repository verification;
-- reasoning changed after pressure but without new facts;
-- the direction lacks a concrete technical justification;
-- the user's preferred choice is being treated as evidence.
+- where it ranks, with repository evidence;
+- whether the user's preference is being treated as evidence;
+- any constraint from the conversation the independent pass missed.
 
-Report only signals supported by the available conversation. Do not label ordinary collaboration as sycophancy.
+Who proposed a direction and how firmly are not evidence.
 
 ## Output
 
@@ -52,8 +51,8 @@ Report only signals supported by the available conversation. Do not label ordina
 **Recommended:** <approach>
 **Why:** <repository-grounded rationale>
 
-### Agreement check
-- <supported signal, or "No concerning signal found">
+### Direction check
+- <rank of the current direction and the evidence, or "No direction yet">
 
 ### Missing evidence
 - <fact that could change the ranking>
