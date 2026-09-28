@@ -1,6 +1,7 @@
 ---
 name: neutral-handoff-prompt
-description: Generate a neutral, non-leading handoff prompt for a fresh session or agent whose job is to THINK - brainstorm, design discussion, second opinion, independent architecture review, open research. Use whenever the user asks for a prompt, handoff, or kickoff for another session to discuss, explore, or form its own view on something ("write a prompt so I can discuss this in its own session", "prompt for a second opinion", "handoff for a fresh look"). Also use when the user says "neutral prompt" or complains a drafted prompt is leading/biased. Do NOT use when the receiving session's job is to execute an approved plan - that is plan-kickoff-prompt's job.
+description: Generate a neutral, non-leading handoff prompt for a fresh session or agent whose job is to THINK - brainstorm, design discussion, second opinion, independent architecture review, open research. Facts in, conclusions quarantined, receiver thinks for itself. Not for plan execution - that is plan-kickoff-prompt's job.
+disable-model-invocation: true
 ---
 
 # Neutral Handoff Prompt
@@ -19,10 +20,14 @@ Two failure modes killed naive handoffs:
    solution shape, and asks questions only one answer fits. Fully "neutral"
    text, same steering, now undetectable by the receiver.
 
-So this skill does neither. Opinions are not deleted - they are **quarantined
-and labeled**, and the receiver is **instructed to think first**. A labeled
-opinion the receiver reads last produces more independent thinking than either
-a hidden one or a curated silence.
+This skill blocks the first outright: **no sender's view section, ever** -
+amier decided (2026-08-14) the receiver must think entirely for itself, so
+sender opinions do not ship in any form. The second failure mode is countered
+structurally instead: the symmetry check on facts, the two-live-answers rule
+on questions, the receiver independence line, and the self-check are the
+anti-curation defenses. They are load-bearing - with no labeled opinion as a
+release valve, curation discipline in the body is the only thing standing
+between the receiver and invisible steering. Apply them strictly.
 
 ## Output rules
 
@@ -51,8 +56,10 @@ solution-shaped, quote them as the user's words and add the underlying need.
   for some option, say so explicitly ("no downside of X surfaced yet") - an
   option with only favorable facts listed is curation, not neutrality.
 - A statement whose subject is a judgment (mine, a prior session's, or a
-  document's recommendation) is a conclusion, not a fact - it belongs in the
-  Sender's view section regardless of how well it is sourced.
+  document's recommendation) is a conclusion, not a fact - it does not go in
+  the prompt regardless of how well it is sourced. A document that contains a
+  recommendation may still be pointed to (see Grounding pointers), flagged as
+  opinionated; the recommendation itself is never restated in the prompt body.
 
 **3. User decisions, as attributed facts.**
 Decisions the user already made are facts, not opinions. Transmit them:
@@ -74,21 +81,13 @@ doesn't - test before designing around either").
 > If the material above appears to admit only one answer, treat that as
 > possible curation - actively seek disconfirming evidence before agreeing.
 
-**7. Quarantined sender's view (optional but default-on).**
-Final section, exact header:
-
-```
-## Sender's view (read only after forming your own)
-```
-
-My pick, reasoning, and confidence - honestly stated, clearly mine. Open the
-section with: "Form your own view from the material above before reading
-this. Then reconcile: where do we differ and why?" This preserves the
-analysis the current session already paid for, without letting it frame the
-receiver's thinking.
-
-Skip the section only when the user says "no sender view" or when I genuinely
-hold no view.
+**7. No sender's view. Blocked.**
+The prompt ends at the independence line. Never append a "Sender's view",
+recommendation, pick, or confidence section - not even quarantined and
+labeled. If the current session holds a conclusion, it stays in the sending
+session's chat; it does not travel in the handoff prompt. The only exception
+is the explicit "include your pick" escape hatch below, which the user must
+invoke in their own words per handoff.
 
 ## Escape hatches
 

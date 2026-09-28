@@ -1,6 +1,7 @@
 ---
 name: plan-kickoff-prompt
-description: Generate a directive kickoff prompt for a fresh session to EXECUTE an approved implementation plan - typically right after superpowers:writing-plans finishes and the user wants to run the plan in its own session. Use whenever the user asks for a prompt to execute, run, implement, or kick off a written plan or spec in a new session ("give me the prompt to execute this plan", "kickoff for the implementation session", "prompt to run the plan"). Leading is intended here - the plan already passed its review gates. Do NOT use for discussion, brainstorm, or second-opinion handoffs - that is neutral-handoff-prompt's job.
+description: Generate a directive kickoff prompt for a fresh session to EXECUTE an approved implementation plan - typically right after superpowers:writing-plans finishes. Directive by design; the plan already passed its gates. Not for discussion handoffs - that is neutral-handoff-prompt's job.
+disable-model-invocation: true
 ---
 
 # Plan-Execution Kickoff Prompt
