@@ -32,12 +32,6 @@
         "url": "https://github.com/JuliusBrussee/caveman.git"
       }
     },
-    "muster": {
-      "source": {
-        "source": "git",
-        "url": "https://github.com/AmierAshrafw/MUSTER.git"
-      }
-    },
     "obsidian-second-brain": {
       "source": {
         "source": "git",
