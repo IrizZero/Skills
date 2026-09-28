@@ -16,9 +16,3 @@ Apply the user's global `~/.codex/AGENTS.md` first.
 - Parse plugin JSON and `agents/openai.yaml` metadata before treating the plugin as ready.
 - Keep custom Codex agents in TOML format. Read-only reviewers must set `sandbox_mode = "read-only"`.
 - Do not install `amier-workflow-kit` alongside unqualified standalone skills with the same names unless the overlap is intentional and tested.
-
-## Task board (MUSTER)
-
-Task board: `tasks/` is managed by MUSTER. Executors follow `tasks/RUNNER.md`
-exactly. Never edit files under `tasks/` by hand; the `tasks/bin/` scripts own
-all state transitions.
