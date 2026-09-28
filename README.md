@@ -10,7 +10,7 @@ The intended flow: on a new machine you tell its Claude Code agent *"install my 
 |------|------|------------------|
 | `skills/` | 17 personal skills (one folder each) | **additive copy** into `~/.claude/skills/` |
 | `agents/` | 5 subagent definitions (`*.md`) | **additive copy** into `~/.claude/agents/` |
-| `commands/` | 1 slash command (`*.md`) | **additive copy** into `~/.claude/commands/` |
+| `commands/` | slash commands (`*.md`) - none right now | **additive copy** into `~/.claude/commands/` |
 | `settings.json` | plugin + hook + statusline + model config | **MERGE**, do not overwrite |
 | `CLAUDE.md` | global instructions | **hands-off** — diff + merge by hand |
 | `manifest.json` | machine-readable install spec (source→dest, merge keys, counts) | — |
@@ -37,8 +37,6 @@ The real values live only in `~/.claude/personal.env`, one `KEY=value` per line,
 ```
 OWNER_NAME=Your Name
 OWNER_EMAIL=you@work.example
-ZOHO_PORTAL_ID=123456789
-ZOHO_ORG=Your Org
 CHATGPT_EMAIL=you@personal.example
 ```
 
@@ -78,8 +76,6 @@ Leave the target's `model`, `permissions`, `effortLevel`, and everything else un
 
 - `~/.claude/skills/` contains the 17 folders in `manifest.skills`
 - `~/.claude/agents/` contains 5 `*.md`
-- `~/.claude/commands/` contains 1 `*.md`
-
 Report: what was installed, what was backed up, and the `settings.json` / `CLAUDE.md` actions you took.
 
 ---

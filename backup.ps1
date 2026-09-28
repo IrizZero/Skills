@@ -8,7 +8,7 @@
 # the current ~/.claude versions. settings.json + CLAUDE.md are copied over as the
 # reference snapshot (install-time logic decides how to merge them onto a target).
 #
-# This repo is public. Personal values (name, emails, Zoho portal) live only in
+# This repo is public. Personal values (name, emails) live only in
 # ~/.claude/personal.env (KEY=value lines). After copying, every real value in the
 # snapshot is swapped for its {{KEY}} placeholder. No personal.env = no backup.
 #

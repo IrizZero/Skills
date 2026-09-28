@@ -22,10 +22,10 @@
   ],
   "personalValues": {
     "file": "~/.claude/personal.env",
-    "keys": ["OWNER_NAME", "OWNER_EMAIL", "ZOHO_PORTAL_ID", "ZOHO_ORG", "CHATGPT_EMAIL"],
+    "keys": ["OWNER_NAME", "OWNER_EMAIL", "CHATGPT_EMAIL"],
     "note": "Public repo: personal values are {{KEY}} placeholders. install fills them in the installed copies from this file (KEY=value lines); missing file -> placeholders stay and install lists them. backup.ps1 swaps real values back to {{KEY}} and refuses to run without it. Never commit this file."
   },
-  "counts": { "skills": 17, "agents": 5, "commands": 1 },
+  "counts": { "skills": 17, "agents": 5, "commands": 0 },
   "skills": [
     "brain-to-docs", "chrome-devtools-axi", "database-expert", "decisions",
     "folder-specific-claude-and-agents-md", "handoff", "neutral-handoff-prompt",
@@ -36,7 +36,7 @@
   "agents": [
     "plan-reviewer.md", "solution-auditor.md", "ui-ux-advisor.md", "ui-ux-init.md", "yagni-guardian.md"
   ],
-  "commands": ["pipeline_zoho-ops.md"],
+  "commands": [],
   "notSynced": [
     ".credentials.json", "*.key", "*.pem", ".env", "personal.env",
     "third-party plugin binaries (reinstall from marketplace; first-party source may live under plugins/)",

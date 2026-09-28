@@ -8,9 +8,8 @@ Every project, every session.
 
 - **Owner:** amier ({{OWNER_NAME}})
 - **Email:** {{OWNER_EMAIL}}
-- **Zoho Projects:** display name "amier"; portal `{{ZOHO_PORTAL_ID}}` ({{ZOHO_ORG}})
 
-Use for audit `USER:` fields, work attribution, Zoho/task ownership, "current user" context.
+Use for audit `USER:` fields, work attribution, task ownership, "current user" context.
 
 ---
 
