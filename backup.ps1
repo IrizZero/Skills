@@ -5,7 +5,7 @@
 # so the repo mirrors your latest setup. Then review 'git status' and commit.
 #
 # Mirrors deletions: skills/agents/commands in the repo are replaced wholesale by
-# the current ~/.claude versions. settings.json + CLAUDE.md are copied over as the
+# the current ~/.claude versions. settings.json + snapshot/CLAUDE.md are copied over as the
 # reference snapshot (install-time logic decides how to merge them onto a target).
 #
 # This repo is public. Personal values (name, emails) live only in
@@ -41,12 +41,16 @@ foreach ($g in @("skills","agents","commands")) {
   if (Test-Path $src) { Copy-Item $src $dst -Recurse -Force }
 }
 Copy-Item (Join-Path $ClaudeHome "settings.json") (Join-Path $repo "settings.json") -Force
-Copy-Item (Join-Path $ClaudeHome "CLAUDE.md")      (Join-Path $repo "CLAUDE.md")      -Force
+# snapshot/, not the repo root: a root CLAUDE.md would load as this repo's project
+# instructions and double the global one in every session here.
+$snapDir = Join-Path $repo "snapshot"
+if (-not (Test-Path $snapDir)) { New-Item -ItemType Directory -Path $snapDir | Out-Null }
+Copy-Item (Join-Path $ClaudeHome "CLAUDE.md")      (Join-Path $snapDir "CLAUDE.md")   -Force
 
 # Redact: real value -> {{KEY}}, case-insensitive, longest value first. Binary files skipped.
 $keys = @($personal.Keys | Sort-Object { $personal[$_].Length } -Descending)
 $utf8 = New-Object System.Text.UTF8Encoding($false)
-$snapshot = @("skills","agents","commands","settings.json","CLAUDE.md") |
+$snapshot = @("skills","agents","commands","settings.json","snapshot") |
   ForEach-Object { Join-Path $repo $_ } | Where-Object { Test-Path -LiteralPath $_ }
 foreach ($f in Get-ChildItem -LiteralPath $snapshot -Recurse -File -Force) {
   $text = [IO.File]::ReadAllText($f.FullName)

@@ -12,7 +12,7 @@ The intended flow: on a new machine you tell its Claude Code agent *"install my 
 | `agents/` | 5 subagent definitions (`*.md`) | **additive copy** into `~/.claude/agents/` |
 | `commands/` | slash commands (`*.md`) - none right now | **additive copy** into `~/.claude/commands/` |
 | `settings.json` | plugin + hook + statusline + model config | **MERGE**, do not overwrite |
-| `CLAUDE.md` | global instructions | **hands-off** — diff + merge by hand |
+| `snapshot/CLAUDE.md` | global instructions (kept out of the repo root so it does not load as project instructions) | **hands-off** - diff + merge by hand |
 | `manifest.json` | machine-readable install spec (source→dest, merge keys, counts) | — |
 | `install.ps1` / `install.sh` | mechanical installer (skills/agents/commands) | — |
 | `backup.ps1` | refresh this repo from the current box | — |
@@ -68,7 +68,7 @@ Read this repo's `settings.json` and the target `~/.claude/settings.json`. Injec
 
 Leave the target's `model`, `permissions`, `effortLevel`, and everything else untouched. The `statusLine` value is **box-specific**: it points at `...plugins/cache/caveman/caveman/<hash>/hooks/caveman-statusline.ps1` (a version hash + a Windows path). On a different box the hash differs, and on macOS/Linux the path is meaningless — if it does not resolve, **drop `statusLine`**. Caveman still works via the plugin without it.
 
-**3. `CLAUDE.md` — hands-off.** Do NOT overwrite `~/.claude/CLAUDE.md`. Copy this repo's `CLAUDE.md` to `~/.claude/CLAUDE.md.from-repo`, fill its `{{KEY}}` placeholders from `~/.claude/personal.env`, and tell the user to diff + merge manually — it holds per-person identity, token-rotation dates, and absolute paths that are wrong on another box.
+**3. `CLAUDE.md` — hands-off.** Do NOT overwrite `~/.claude/CLAUDE.md`. Copy this repo's `snapshot/CLAUDE.md` to `~/.claude/CLAUDE.md.from-repo`, fill its `{{KEY}}` placeholders from `~/.claude/personal.env`, and tell the user to diff + merge manually — it holds per-person identity, token-rotation dates, and absolute paths that are wrong on another box.
 
 **4. Plugins / hooks.** The caveman SessionStart hook and statusline come from the `caveman@caveman` marketplace plugin declared in `settings.json` (handled in step 2). After merging, tell the user to **restart Claude Code** — plugins reinstall automatically from `enabledPlugins` + `extraKnownMarketplaces`. There are no loose hook scripts to copy.
 

@@ -16,8 +16,8 @@
   },
   "handsOff": [
     {
-      "src": "CLAUDE.md",
-      "note": "Global instructions are personal per-box (identity, token-rotation dates, absolute paths). Do NOT auto-overwrite. Copy to CLAUDE.md.from-repo beside target and let the agent/user diff+merge."
+      "src": "snapshot/CLAUDE.md",
+      "note": "Global instructions are personal per-box (identity, token-rotation dates, absolute paths). Kept under snapshot/ so Claude Code does not load it as this repo's project instructions. Do NOT auto-overwrite. Copy to CLAUDE.md.from-repo beside target and let the agent/user diff+merge."
     }
   ],
   "personalValues": {

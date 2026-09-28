@@ -90,5 +90,5 @@ echo "  1. settings.json: MERGE keys enabledPlugins, extraKnownMarketplaces, sta
 echo "     from $REPO/settings.json into $CLAUDE_HOME/settings.json."
 echo "     Keep target's model / permissions / effortLevel. The statusLine value is a Windows"
 echo "     PowerShell path - it will NOT work on macOS/Linux, so drop statusLine on this box."
-echo "  2. CLAUDE.md: do NOT overwrite. Diff $REPO/CLAUDE.md vs $CLAUDE_HOME/CLAUDE.md and merge by hand."
+echo "  2. CLAUDE.md: do NOT overwrite. Diff $REPO/snapshot/CLAUDE.md vs $CLAUDE_HOME/CLAUDE.md and merge by hand."
 echo "  3. Restart Claude Code so plugins reinstall from the marketplace config."

@@ -93,5 +93,5 @@ Write-Host "  1. settings.json: MERGE keys enabledPlugins, extraKnownMarketplace
 Write-Host "     from '$repo\settings.json' into '$ClaudeHome\settings.json'."
 Write-Host "     Keep target's model / permissions / effortLevel. The statusLine path is box-specific"
 Write-Host "     (plugin-cache hash + Windows path) - drop it if it does not resolve here."
-Write-Host "  2. CLAUDE.md: do NOT overwrite. Diff '$repo\CLAUDE.md' vs '$ClaudeHome\CLAUDE.md' and merge by hand."
+Write-Host "  2. CLAUDE.md: do NOT overwrite. Diff '$repo\snapshot\CLAUDE.md' vs '$ClaudeHome\CLAUDE.md' and merge by hand."
 Write-Host "  3. Restart Claude Code so plugins reinstall from the marketplace config."
