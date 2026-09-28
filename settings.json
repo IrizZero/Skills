@@ -22,8 +22,7 @@
     "caveman@caveman": true,
     "frontend-design@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": true,
-    "obsidian-second-brain@obsidian-second-brain": true,
-    "codex@openai-codex": true
+    "obsidian-second-brain@obsidian-second-brain": true
   },
   "extraKnownMarketplaces": {
     "caveman": {
@@ -36,12 +35,6 @@
       "source": {
         "source": "git",
         "url": "https://github.com/eugeniughelbur/obsidian-second-brain.git"
-      }
-    },
-    "openai-codex": {
-      "source": {
-        "source": "git",
-        "url": "https://github.com/openai/codex-plugin-cc.git"
       }
     }
   },
