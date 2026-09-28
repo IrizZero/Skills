@@ -29,11 +29,30 @@ The Codex-compatible distribution lives separately at
 Do not install the plugin alongside standalone Codex skills with the same names.
 Codex does not merge same-named skills, so both copies can appear and drift.
 
+## Personal values
+
+This repo is public, so personal values are `{{KEY}}` placeholders.
+The real values live only in `~/.claude/personal.env`, one `KEY=value` per line, no spaces around `=`:
+
+```
+OWNER_NAME=Your Name
+OWNER_EMAIL=you@work.example
+ZOHO_PORTAL_ID=123456789
+ZOHO_ORG=Your Org
+CHATGPT_EMAIL=you@personal.example
+```
+
+- `install.ps1` / `install.sh` fill the placeholders in the installed copies. Keys they could not fill are listed at the end.
+- `backup.ps1` swaps real values back to `{{KEY}}` and refuses to run without the file.
+- Never commit `personal.env`.
+
 ---
 
 ## Installing agent: do this
 
 You are a Claude Code agent asked to install this repo onto **this** box. Follow exactly. `manifest.json` is the machine-readable version of these steps.
+
+**0. Personal values.** If `~/.claude/personal.env` is missing, ask the user for each key in [Personal values](#personal-values) and write the file. Never put the values in this repo.
 
 **1. Run the mechanical installer** (copies `skills/`, `agents/`, `commands/` into `~/.claude/`; moves any same-named item to `~/.claude/install-backups/<timestamp>/<group>/<name>`).
 
@@ -51,7 +70,7 @@ Read this repo's `settings.json` and the target `~/.claude/settings.json`. Injec
 
 Leave the target's `model`, `permissions`, `effortLevel`, and everything else untouched. The `statusLine` value is **box-specific**: it points at `...plugins/cache/caveman/caveman/<hash>/hooks/caveman-statusline.ps1` (a version hash + a Windows path). On a different box the hash differs, and on macOS/Linux the path is meaningless — if it does not resolve, **drop `statusLine`**. Caveman still works via the plugin without it.
 
-**3. `CLAUDE.md` — hands-off.** Do NOT overwrite `~/.claude/CLAUDE.md`. Copy this repo's `CLAUDE.md` to `~/.claude/CLAUDE.md.from-repo` and tell the user to diff + merge manually — it holds per-person identity, token-rotation dates, and absolute paths that are wrong on another box.
+**3. `CLAUDE.md` — hands-off.** Do NOT overwrite `~/.claude/CLAUDE.md`. Copy this repo's `CLAUDE.md` to `~/.claude/CLAUDE.md.from-repo`, fill its `{{KEY}}` placeholders from `~/.claude/personal.env`, and tell the user to diff + merge manually — it holds per-person identity, token-rotation dates, and absolute paths that are wrong on another box.
 
 **4. Plugins / hooks.** The caveman SessionStart hook and statusline come from the `caveman@caveman` marketplace plugin declared in `settings.json` (handled in step 2). After merging, tell the user to **restart Claude Code** — plugins reinstall automatically from `enabledPlugins` + `extraKnownMarketplaces`. There are no loose hook scripts to copy.
 
@@ -71,7 +90,8 @@ Run the installer for your OS (step 1 above), then do the `settings.json` merge 
 
 ## Refresh the backup (source box)
 
-After changing your skills/agents/config on the source box, pull the current state back into this repo, then commit:
+After changing your skills/agents/config on the source box, pull the current state back into this repo, then commit.
+Needs `~/.claude/personal.env` (see [Personal values](#personal-values)):
 
 ```bash
 ./backup.ps1
@@ -81,4 +101,4 @@ If skill/agent/command counts changed, bump them in `manifest.json`.
 
 ## Not synced (by design)
 
-Secrets (`.credentials.json`, `*.key`, `*.pem`, `.env`), install-time backups (`install-backups/`), and Claude session state (`projects/ sessions/ tasks/ telemetry/ shell-snapshots/ file-history/`) are gitignored or simply never copied. Plugin binaries reinstall from the marketplace.
+Secrets (`.credentials.json`, `*.key`, `*.pem`, `.env`), personal values (`personal.env`), install-time backups (`install-backups/`), and Claude session state (`projects/ sessions/ tasks/ telemetry/ shell-snapshots/ file-history/`) are gitignored or simply never copied. Plugin binaries reinstall from the marketplace.

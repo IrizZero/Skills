@@ -6,7 +6,7 @@ These rules apply to every project and every session.
 
 ## Owner / Identity
 
-- **Owner:** amier (Amier Ashraf Hadi)
+- **Owner:** amier ({{OWNER_NAME}})
 - **Email:** {{OWNER_EMAIL}}
 - **Zoho Projects:** display name "amier"; portal `{{ZOHO_PORTAL_ID}}` ({{ZOHO_ORG}})
 

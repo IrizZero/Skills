@@ -8,7 +8,7 @@ says "from what we discussed" (or similar), extract the items from the conversat
 LABEL them as extracted in the preview so the user can verify.
 
 ## Owner
-Operated by its owner: **amier** (Amier Ashraf Hadi), email {{OWNER_EMAIL}}.
+Operated by its owner: **amier** ({{OWNER_NAME}}), email {{OWNER_EMAIL}}.
 Use this identity for the audit `USER:` field and any "who is running this" context.
 
 ## Requires

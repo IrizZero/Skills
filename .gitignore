@@ -6,6 +6,9 @@
 .env
 **/.env
 
+# Personal values (name, emails, Zoho portal) - lives in ~/.claude, never here
+personal.env
+
 # Local, per-checkout Claude settings (do not sync)
 .claude/settings.local.json
 

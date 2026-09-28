@@ -6,6 +6,8 @@
 # before overwrite. Backups stay out of skills/ agents/ commands/, where the loaders would
 # pick them up as extra skills. (~/.claude/backups/ is Claude Code's own folder - not used.)
 # Does NOT touch settings.json or CLAUDE.md - those need a judgment merge (see README).
+# Personal values are {{KEY}} placeholders in this repo; the installed copies get them
+# filled from ~/.claude/personal.env (KEY=value lines) when that file exists.
 #
 # Usage:
 #   bash install.sh              # install
@@ -18,8 +20,27 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 STAMP="$(date +%Y%m%d-%H%M%S)"
 DRY="${DRY_RUN:-0}"
 
+PERSONAL="$CLAUDE_HOME/personal.env"
+
+# Replace every {{KEY}} in file $1 with its value from $PERSONAL.
+fill_placeholders() {
+  local content new line key val pat
+  content="$(cat "$1"; printf x)"; content="${content%x}"
+  new=$content
+  while IFS= read -r line || [ -n "$line" ]; do
+    line="${line%$'\r'}"
+    case "$line" in ''|'#'*) continue ;; esac
+    case "$line" in [A-Z]*=*) ;; *) echo "$PERSONAL has a bad line (want KEY=value): $line" >&2; exit 1 ;; esac
+    key="${line%%=*}"; val="${line#*=}"
+    [ -n "$val" ] || continue
+    pat="{{$key}}"
+    new=${new//"$pat"/"$val"}
+  done < "$PERSONAL"
+  [ "$new" = "$content" ] || printf '%s' "$new" > "$1"
+}
+
 [ "$DRY" = 1 ] || mkdir -p "$CLAUDE_HOME"
-installed=0; backed=0
+installed=0; backed=0; installed_list=""
 
 for g in skills agents commands; do
   srcdir="$REPO/$g"
@@ -38,12 +59,31 @@ for g in skills agents commands; do
     fi
     if [ "$DRY" = 1 ]; then echo "[dry] copy   $name -> $dest"
     else cp -r "$item" "$dest"; fi
-    installed=$((installed+1))
+    installed=$((installed+1)); installed_list="$installed_list$dest"$'\n'
   done
 done
 
+# Fill {{KEY}} placeholders in the installed copies. grep -I skips binary files.
+unfilled=""
+if [ "$DRY" = 1 ]; then echo "[dry] fill {{KEY}} placeholders from $PERSONAL"
+else
+  while IFS= read -r d; do
+    [ -n "$d" ] || continue
+    while IFS= read -r f; do
+      [ -f "$PERSONAL" ] && fill_placeholders "$f"
+      left="$(grep -ohE '\{\{[A-Z][A-Z0-9_]*\}\}' "$f" | sort -u | tr '\n' ' ' || true)"
+      [ -z "$left" ] || unfilled="$unfilled  $f: $left"$'\n'
+    done < <(grep -rlIF '{{' "$d" || true)
+  done <<< "$installed_list"
+fi
+
 echo
 echo "Installed $installed item(s) into $CLAUDE_HOME ($backed existing backed up)."
+if [ -n "$unfilled" ]; then
+  echo
+  echo "UNFILLED placeholders - add these keys to $PERSONAL (see README 'Personal values'), then re-run:"
+  printf '%s' "$unfilled"
+fi
 echo
 echo "NEXT - needs judgment, NOT done by this script:"
 echo "  1. settings.json: MERGE keys enabledPlugins, extraKnownMarketplaces, statusLine"

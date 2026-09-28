@@ -20,6 +20,11 @@
       "note": "Global instructions are personal per-box (identity, token-rotation dates, absolute paths). Do NOT auto-overwrite. Copy to CLAUDE.md.from-repo beside target and let the agent/user diff+merge."
     }
   ],
+  "personalValues": {
+    "file": "~/.claude/personal.env",
+    "keys": ["OWNER_NAME", "OWNER_EMAIL", "ZOHO_PORTAL_ID", "ZOHO_ORG", "CHATGPT_EMAIL"],
+    "note": "Public repo: personal values are {{KEY}} placeholders. install fills them in the installed copies from this file (KEY=value lines); missing file -> placeholders stay and install lists them. backup.ps1 swaps real values back to {{KEY}} and refuses to run without it. Never commit this file."
+  },
   "counts": { "skills": 17, "agents": 5, "commands": 1 },
   "skills": [
     "brain-to-docs", "chrome-devtools-axi", "database-expert", "decisions",
@@ -33,7 +38,7 @@
   ],
   "commands": ["pipeline_zoho-ops.md"],
   "notSynced": [
-    ".credentials.json", "*.key", "*.pem", ".env",
+    ".credentials.json", "*.key", "*.pem", ".env", "personal.env",
     "third-party plugin binaries (reinstall from marketplace; first-party source may live under plugins/)",
     "session state (projects/ sessions/ tasks/ telemetry/ shell-snapshots/ file-history/)"
   ]

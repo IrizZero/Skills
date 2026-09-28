@@ -6,6 +6,8 @@
 # before overwrite. Backups stay out of skills/ agents/ commands/, where the loaders would
 # pick them up as extra skills. (~/.claude/backups/ is Claude Code's own folder - not used.)
 # Does NOT touch settings.json or CLAUDE.md - those need a judgment merge (see README).
+# Personal values are {{KEY}} placeholders in this repo; the installed copies get them
+# filled from ~/.claude/personal.env (KEY=value lines) when that file exists.
 #
 # Usage:
 #   ./install.ps1            # install
@@ -26,7 +28,7 @@ if (-not (Test-Path $ClaudeHome)) {
   else { New-Item -ItemType Directory -Path $ClaudeHome | Out-Null; Write-Host "Created $ClaudeHome" }
 }
 
-$installed = 0; $backedUp = 0
+$installed = 0; $backedUp = 0; $installedPaths = @()
 foreach ($g in @("skills","agents","commands")) {
   $srcDir = Join-Path $repo $g
   if (-not (Test-Path $srcDir)) { continue }
@@ -49,12 +51,42 @@ foreach ($g in @("skills","agents","commands")) {
     }
     if ($WhatIf) { Write-Host "[dry] copy   $($item.Name) -> $dest" }
     else { Copy-Item $item.FullName $dest -Recurse -Force }
-    $installed++
+    $installed++; $installedPaths += $dest
+  }
+}
+
+# Fill {{KEY}} placeholders in the installed copies. Binary files skipped.
+$personalFile = Join-Path $ClaudeHome "personal.env"
+$personal = @{}
+if (Test-Path $personalFile) {
+  foreach ($line in Get-Content -LiteralPath $personalFile -Encoding UTF8) {
+    if ($line -match '^\s*(#|$)') { continue }
+    if ($line -notmatch '^([A-Z][A-Z0-9_]*)=(.*)$') { throw "$personalFile has a bad line (want KEY=value): $line" }
+    if ($Matches[2] -ne '') { $personal[$Matches[1]] = $Matches[2] }
+  }
+}
+$unfilled = @()
+if ($WhatIf) { Write-Host "[dry] fill {{KEY}} placeholders from $personalFile" }
+elseif ($installedPaths) {
+  $utf8 = New-Object System.Text.UTF8Encoding($false)
+  foreach ($f in Get-ChildItem -LiteralPath $installedPaths -Recurse -File -Force) {
+    $text = [IO.File]::ReadAllText($f.FullName)
+    if ($text.Contains([char]0) -or -not $text.Contains("{{")) { continue }
+    $new = $text
+    foreach ($k in $personal.Keys) { $new = $new.Replace("{{$k}}", $personal[$k]) }
+    if ($new -cne $text) { [IO.File]::WriteAllText($f.FullName, $new, $utf8) }
+    $left = [regex]::Matches($new, '\{\{[A-Z][A-Z0-9_]*\}\}') | ForEach-Object { $_.Value } | Sort-Object -Unique
+    if ($left) { $unfilled += "  $($f.FullName): $($left -join ', ')" }
   }
 }
 
 Write-Host ""
 Write-Host "Installed $installed item(s) into $ClaudeHome ($backedUp existing backed up)."
+if ($unfilled) {
+  Write-Host ""
+  Write-Host "UNFILLED placeholders - add these keys to $personalFile (see README 'Personal values'), then re-run:"
+  $unfilled | ForEach-Object { Write-Host $_ }
+}
 Write-Host ""
 Write-Host "NEXT - needs judgment, NOT done by this script:"
 Write-Host "  1. settings.json: MERGE keys enabledPlugins, extraKnownMarketplaces, statusLine"
