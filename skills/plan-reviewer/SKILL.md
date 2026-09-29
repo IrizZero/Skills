@@ -143,6 +143,13 @@ Bare verdicts are forbidden. Each verdict must justify itself.
 
 Special case: any finding tagged `severity-override: security` must, on DISMISS, include explicit security analysis (not "looks fine"). The main thread must also escalate the security finding in the chat summary regardless of verdict.
 
+**Main-thread duties after triage** (inside the writing-plans flow):
+
+1. Apply every ACCEPTed change to the plan inline.
+2. Write the sidecar `<plan>.review.md`: one entry per finding with its verdict, its source tag (`[sol]`, `[both]` or opus-only) and the Codex verdict.
+3. Post a one-line chat summary: finding counts, verdict counts, and `codex: ok|failed`.
+4. Continue to `yagni-guardian`, then the user-review gate. If the review itself failed, go on without a sidecar and say so in chat.
+
 ## Integration with superpowers
 
 This skill is invoked from the `superpowers:writing-plans` flow.

@@ -9,7 +9,7 @@ description: Use to audit an implementation plan for YAGNI violations — specul
 
 1. **Manual — the reliable path.** The user types "yagni check", "yagni audit", "yagni-guardian", or "run yagni", most often at the end of the `superpowers:writing-plans` flow: after `plan-reviewer` has fired and before approving the plan. The skill resolves the plan automatically (most-recent under `docs/superpowers/plans/`) or from an explicit path argument.
 2. **Standalone.** Invoked outside any `superpowers:*` flow against a user-supplied path, or fallback to the most-recent plan.
-3. **Auto-inject from writing-plans — NOT wired in v1.** Description-only auto-fire was tested at this exact gate (`fixtures/test-log.md`, Task 10, 2026-05-22) and FAILED — `plan-reviewer` fired automatically, `yagni-guardian` did not. Reliable auto-fire would require a hook block in `~/.claude/CLAUDE.md` (snippet in the design spec, Section 9), and that hook is deliberately NOT installed: manual invocation is the chosen v1 workflow (keeps global `CLAUDE.md` lean; explicit invocation is preferred for an advisory tool). Until a hook is added, do not assume this skill fires on its own — if you reach the writing-plans approval gate, prompt the user to run `yagni check`.
+3. **Auto-inject from writing-plans.** `~/.claude/CLAUDE.md` ("Superpowers flow hooks") tells the main thread to run this skill after `plan-reviewer` returns and before the user-review gate. That line exists because description-only auto-fire failed at this exact gate (`fixtures/test-log.md`, Task 10, 2026-05-22): `plan-reviewer` fired automatically, `yagni-guardian` did not. If the CLAUDE.md line is ever removed, prompt the user to run `yagni check` at the approval gate instead.
 
 ## Overview
 
@@ -110,6 +110,13 @@ After the skill returns findings, the main thread judges each one with justifica
 Bare verdicts are forbidden. Each verdict must justify itself.
 
 The main thread writes the sidecar `<plan>.yagni.md` with one entry per finding capturing the verdict. Sidecars are gitignored — `.gitignore` covers `docs/superpowers/plans/*.yagni.md`, alongside the matching `.review.md` rule.
+
+**Main-thread duties after triage** (inside the writing-plans flow):
+
+1. Apply every ACCEPTed cut to the plan inline.
+2. Write the sidecar `<plan>.yagni.md` as above.
+3. Post a one-line chat summary: finding count, density tier, verdict counts.
+4. Continue to the user-review gate. If the audit itself failed, go on without a sidecar and say so in chat.
 
 ## Integration with superpowers
 

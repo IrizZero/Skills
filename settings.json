@@ -38,6 +38,10 @@
       }
     }
   },
-  "effortLevel": "xhigh",
-  "skipWorkflowUsageWarning": true
+  "effortLevel": "high",
+  "skipWorkflowUsageWarning": true,
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  }
 }

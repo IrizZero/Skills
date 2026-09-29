@@ -25,9 +25,9 @@
     "keys": ["OWNER_NAME", "OWNER_EMAIL", "CHATGPT_EMAIL"],
     "note": "Public repo: personal values are {{KEY}} placeholders. install fills them in the installed copies from this file (KEY=value lines); missing file -> placeholders stay and install lists them. backup.ps1 swaps real values back to {{KEY}} and refuses to run without it. Never commit this file."
   },
-  "counts": { "skills": 17, "agents": 5, "commands": 0 },
+  "counts": { "skills": 18, "agents": 5, "commands": 0 },
   "skills": [
-    "brain-to-docs", "chrome-devtools-axi", "database-expert", "decisions",
+    "box-runbook", "brain-to-docs", "chrome-devtools-axi", "database-expert", "decisions",
     "folder-specific-claude-and-agents-md", "handoff", "neutral-handoff-prompt",
     "plan-kickoff-prompt", "plan-reviewer", "research-prompt", "setup-help",
     "solution-auditor", "stress-test", "teach", "ui-ux-advisor", "ui-ux-init",
