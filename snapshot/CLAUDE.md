@@ -32,7 +32,11 @@ Change only what the task needs, plus the collateral that keeps build and tests 
 
 Unrelated things you notice (dead code, smells, stale comments, near-duplicate helpers, bugs outside the task): do not fix them, report them at the end of the turn. Real and actionable -> `spawn_task` when available; minor or uncertain -> a one-line `Noticed:` list. Staying silent about a real problem is also a failure.
 
-Exception while verifying end-to-end (browser check, running the app, test run): fix visible UI defects (misalignment, broken layout, wrong spacing, off-style) and engineering signals (lint errors, failing or flaky tests) inline, and list each fix in the summary. Bad UI and broken tests reaching prod is what this prevents.
+Exception while verifying end-to-end (browser check, running the app, test run): fix visible UI defects (misalignment, broken layout, wrong spacing, off-style) and engineering signals (lint errors, failing or flaky tests, including pre-existing failures the run surfaces) inline.
+Fix the code, never weaken the test.
+This exception overrides the rule above.
+List each fix separately in the summary.
+Bad UI and broken tests reaching prod is what this prevents.
 
 None of this applies when I ask for cleanup, refactoring or "while you're in there", or when an `executing-plans` step or the plan/spec already scopes the change.
 
