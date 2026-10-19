@@ -37,7 +37,7 @@ The skill is **advisory only**. It cannot override the superpower flow, edit the
    - Assemble the prompt from the template in **Adversarial pass prompt** below: substitute the plan path, the affected-paths list, and **findings-A pasted verbatim** into the `FIRST REVIEWER FINDINGS` slot.
    - Write the assembled prompt to a scratchpad file, then invoke Codex passing it as an **argument** (never stdin — stdin hangs on Windows):
      ```bash
-     codex exec -m gpt-6-sol -c model_reasoning_effort=high --sandbox read-only "$(cat <scratchpad>/plan-reviewer-codex-prompt.txt)"
+     codex exec -m gpt-6-sol -c model_reasoning_effort=high --sandbox read-only "$(cat <scratchpad>/plan-reviewer-codex-prompt.txt)" </dev/null
      ```
      `--sandbox read-only` lets Codex read the agent spec, the plan, and the affected files itself; it needs no network and writes nothing.
    - **Model/effort is fixed at `gpt-6-sol` @ `high`.** This is within standing policy and needs no approval. Do NOT escalate to `xhigh` — sol@xhigh requires explicit owner approval first.

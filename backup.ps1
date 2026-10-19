@@ -34,13 +34,17 @@ foreach ($line in Get-Content -LiteralPath $personalFile -Encoding UTF8) {
   if ($Matches[2] -ne '') { $personal[$Matches[1]] = $Matches[2] }
 }
 
-foreach ($g in @("skills","agents","commands")) {
+# hooks/ holds the scripts settings.json's "hooks" entries run (guard.js, serena-notice.js).
+foreach ($g in @("skills","agents","commands","hooks")) {
   $src = Join-Path $ClaudeHome $g
   $dst = Join-Path $repo $g
   if (Test-Path $dst) { Remove-Item $dst -Recurse -Force -Confirm:$false }
   if (Test-Path $src) { Copy-Item $src $dst -Recurse -Force }
 }
 Copy-Item (Join-Path $ClaudeHome "settings.json") (Join-Path $repo "settings.json") -Force
+# The status line script settings.json's "statusLine" runs.
+$statusLine = Join-Path $ClaudeHome "statusline.js"
+if (Test-Path $statusLine) { Copy-Item $statusLine (Join-Path $repo "statusline.js") -Force }
 # snapshot/, not the repo root: a root CLAUDE.md would load as this repo's project
 # instructions and double the global one in every session here.
 $snapDir = Join-Path $repo "snapshot"
@@ -50,7 +54,7 @@ Copy-Item (Join-Path $ClaudeHome "CLAUDE.md")      (Join-Path $snapDir "CLAUDE.m
 # Redact: real value -> {{KEY}}, case-insensitive, longest value first. Binary files skipped.
 $keys = @($personal.Keys | Sort-Object { $personal[$_].Length } -Descending)
 $utf8 = New-Object System.Text.UTF8Encoding($false)
-$snapshot = @("skills","agents","commands","settings.json","snapshot") |
+$snapshot = @("skills","agents","commands","hooks","settings.json","statusline.js","snapshot") |
   ForEach-Object { Join-Path $repo $_ } | Where-Object { Test-Path -LiteralPath $_ }
 foreach ($f in Get-ChildItem -LiteralPath $snapshot -Recurse -File -Force) {
   $text = [IO.File]::ReadAllText($f.FullName)

@@ -8,9 +8,11 @@ The intended flow: on a new machine you tell its Claude Code agent *"install my 
 
 | Path | What | Install handling |
 |------|------|------------------|
-| `skills/` | 17 personal skills (one folder each) | **additive copy** into `~/.claude/skills/` |
+| `skills/` | 19 personal skills (one folder each) | **additive copy** into `~/.claude/skills/` |
 | `agents/` | 5 subagent definitions (`*.md`) | **additive copy** into `~/.claude/agents/` |
 | `commands/` | slash commands (`*.md`) - none right now | **additive copy** into `~/.claude/commands/` |
+| `hooks/` | hook scripts `settings.json` runs: `guard.js` (blocks rule breaks), `serena-notice.js` (subagent note) | **agent copy** into `~/.claude/hooks/` (step 4) |
+| `statusline.js` | status line: caveman badge + context % | **agent copy** into `~/.claude/` (step 4) |
 | `settings.json` | plugin + hook + statusline + model config | **MERGE**, do not overwrite |
 | `snapshot/CLAUDE.md` | global instructions (kept out of the repo root so it does not load as project instructions) | **hands-off** - diff + merge by hand |
 | `manifest.json` | machine-readable install spec (source→dest, merge keys, counts) | — |
@@ -64,18 +66,29 @@ Read this repo's `settings.json` and the target `~/.claude/settings.json`. Injec
 
 - `enabledPlugins`
 - `extraKnownMarketplaces`
-- `statusLine` — only if the target has none **and** the referenced path exists on this box.
+- `statusLine` - only if the target has none.
+- `hooks` - union-merge per event (`PreToolUse`, `SubagentStart`); do not drop the target's own hooks.
 
-Leave the target's `model`, `permissions`, `effortLevel`, and everything else untouched. The `statusLine` value is **box-specific**: it points at `...plugins/cache/caveman/caveman/<hash>/hooks/caveman-statusline.ps1` (a version hash + a Windows path). On a different box the hash differs, and on macOS/Linux the path is meaningless — if it does not resolve, **drop `statusLine`**. Caveman still works via the plugin without it.
+Leave the target's `model`, `permissions`, `effortLevel`, and everything else untouched.
+
+`statusLine` and `hooks` run `node` on scripts by **absolute path** under the source box's `~/.claude` (e.g. `C:/Users/<user>/.claude/hooks/guard.js`).
+Rewrite those paths to the target's `~/.claude`.
+If `node` is not on PATH, drop `statusLine` and `hooks` and tell the user.
 
 **3. `CLAUDE.md` — hands-off.** Do NOT overwrite `~/.claude/CLAUDE.md`. Copy this repo's `snapshot/CLAUDE.md` to `~/.claude/CLAUDE.md.from-repo`, fill its `{{KEY}}` placeholders from `~/.claude/personal.env`, and tell the user to diff + merge manually — it holds per-person identity, token-rotation dates, and absolute paths that are wrong on another box.
 
-**4. Plugins / hooks.** The caveman SessionStart hook and statusline come from the `caveman@caveman` marketplace plugin declared in `settings.json` (handled in step 2). After merging, tell the user to **restart Claude Code** — plugins reinstall automatically from `enabledPlugins` + `extraKnownMarketplaces`. There are no loose hook scripts to copy.
+**4. Hook scripts, status line, plugins.**
+
+- Copy this repo's `hooks/` into `~/.claude/hooks/` and `statusline.js` into `~/.claude/`. Move any same-named file to `~/.claude/install-backups/<timestamp>/` first.
+- Caveman (the plugin) comes from `caveman@caveman` in `settings.json`. Its default mode on the source box is **off**, set outside `~/.claude`: `%APPDATA%\caveman\config.json` (Windows) or `~/.config/caveman/config.json` (macOS / Linux) holding `{ "defaultMode": "off" }`. Create that file only if the user wants the same default.
+- Tell the user to **restart Claude Code**: plugins reinstall from `enabledPlugins` + `extraKnownMarketplaces`, and the merged hooks load.
 
 **5. Verify** against `manifest.json`:
 
-- `~/.claude/skills/` contains the 17 folders in `manifest.skills`
+- `~/.claude/skills/` contains the 19 folders in `manifest.skills`
 - `~/.claude/agents/` contains 5 `*.md`
+- `~/.claude/hooks/` contains `guard.js` and `serena-notice.js`, and `~/.claude/statusline.js` exists
+- `node ~/.claude/hooks/guard.js` with an empty stdin exits 0 and prints nothing
 Report: what was installed, what was backed up, and the `settings.json` / `CLAUDE.md` actions you took.
 
 ---
@@ -87,6 +100,7 @@ Run the installer for your OS (step 1 above), then do the `settings.json` merge 
 ## Refresh the backup (source box)
 
 After changing your skills/agents/config on the source box, pull the current state back into this repo, then commit.
+It mirrors `skills/`, `agents/`, `commands/` and `hooks/`, and copies `settings.json`, `statusline.js` and `CLAUDE.md` (to `snapshot/`).
 Needs `~/.claude/personal.env` (see [Personal values](#personal-values)):
 
 ```bash

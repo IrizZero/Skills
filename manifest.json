@@ -7,12 +7,16 @@
     { "src": "agents",   "dest": "agents",   "type": "dir", "note": "one *.md per subagent" },
     { "src": "commands", "dest": "commands", "type": "dir", "note": "one *.md per slash command" }
   ],
+  "agentCopied": [
+    { "src": "hooks", "dest": "hooks", "type": "dir", "note": "hook scripts run by settings.json 'hooks' (guard.js, serena-notice.js). Not copied by install.ps1/install.sh: the installing agent copies them, backing up same-named files. Need node on PATH." },
+    { "src": "statusline.js", "dest": "statusline.js", "type": "file", "note": "status line script run by settings.json 'statusLine' (caveman badge + context %). Agent-copied; needs node." }
+  ],
   "mergeSettings": {
     "src": "settings.json",
     "dest": "settings.json",
-    "mergeKeys": ["enabledPlugins", "extraKnownMarketplaces", "statusLine"],
+    "mergeKeys": ["enabledPlugins", "extraKnownMarketplaces", "statusLine", "hooks"],
     "preserveTargetKeys": ["model", "permissions", "effortLevel"],
-    "notes": "MERGE, do not overwrite. statusLine holds a box-specific plugin-cache path with a version hash and a Windows path; drop it if it does not resolve on the target. Caveman hook + statusline come from the caveman@caveman marketplace plugin declared here — they reinstall after a Claude Code restart."
+    "notes": "MERGE, do not overwrite. statusLine and hooks run node scripts by absolute path under this box's ~/.claude: rewrite those paths to the target's ~/.claude, and drop the entries if node is missing. Caveman itself comes from the caveman@caveman marketplace plugin declared here and reinstalls after a Claude Code restart."
   },
   "handsOff": [
     {
@@ -25,9 +29,9 @@
     "keys": ["OWNER_NAME", "OWNER_EMAIL", "CHATGPT_EMAIL"],
     "note": "Public repo: personal values are {{KEY}} placeholders. install fills them in the installed copies from this file (KEY=value lines); missing file -> placeholders stay and install lists them. backup.ps1 swaps real values back to {{KEY}} and refuses to run without it. Never commit this file."
   },
-  "counts": { "skills": 18, "agents": 5, "commands": 0 },
+  "counts": { "skills": 19, "agents": 5, "commands": 0, "hooks": 2 },
   "skills": [
-    "box-runbook", "brain-to-docs", "chrome-devtools-axi", "database-expert", "decisions",
+    "box-runbook", "brain-to-docs", "chrome-devtools-axi", "codex-exec", "database-expert", "decisions",
     "folder-specific-claude-and-agents-md", "handoff", "neutral-handoff-prompt",
     "plan-kickoff-prompt", "plan-reviewer", "research-prompt", "setup-help",
     "solution-auditor", "stress-test", "teach", "ui-ux-advisor", "ui-ux-init",

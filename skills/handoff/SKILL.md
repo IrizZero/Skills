@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 Write a complete handoff that lets a fresh agent — with zero memory of this session — continue the work without re-asking, re-discovering, or repeating mistakes.
 
-Output the entire handoff as a **single fenced code block** in the chat so the user can copy it in one click. Also save a copy to a file (see "File Output").
+Output the entire handoff as a **single fenced code block** in the chat so the user can copy it in one click. Save it to a file only when the user names a path or says save (see "File Output").
 
 ## Core Principles
 
@@ -26,7 +26,6 @@ Output the entire handoff as a **single fenced code block** in the chat so the u
 3. If the user passed arguments, treat them as the focus for the next session and tailor the handoff toward that goal.
 4. Fill in every section of the template below. Omit a section only if it is genuinely empty (e.g. no blockers) — mark it `None`.
 5. Output the filled template inside one fenced code block in the chat.
-6. Save the same content to the file path described below and tell the user that path.
 
 ## Output Format
 
@@ -85,12 +84,7 @@ facts to trust blindly. Then wait for my instructions before taking any action.
 
 ## File Output
 
-Save the handoff to a temporary location outside the working tree so it does not pollute the repo:
-
-- Preferred: the OS temp directory, e.g. `$TMPDIR/handoff-<random-8-chars>.md` (macOS/Linux) or the system temp dir equivalent.
-- If the user prefers an in-repo record, save to `HANDOFF.md` in the project root instead.
-
-After saving, tell the user the absolute path. The user can then start a fresh session with just:
+Only when the user names a path or says save: write the same content there (no path given: the OS temp directory, outside the working tree) and tell the user the absolute path. The user can then start a fresh session with just:
 
 ```
 Read the file <absolute-path> to get the context, then wait for instructions.

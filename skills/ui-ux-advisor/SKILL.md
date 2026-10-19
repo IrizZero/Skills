@@ -100,7 +100,7 @@ The subagent then:
 ## What it does NOT do
 
 - Write or edit any file. Read-only.
-- Generate HTML mockups (that is the deferred sibling skill `ui-ux-init`).
+- Generate HTML mockups (that is `ui-ux-init`'s job).
 - Write or edit `docs/ui-ux/DESIGN.md` (also `ui-ux-init`'s job).
 - Search the web (`WebSearch`/`WebFetch` not in subagent tools).
 - Override or block any active superpower flow.

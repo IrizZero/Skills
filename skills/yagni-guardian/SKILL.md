@@ -109,7 +109,7 @@ After the skill returns findings, the main thread judges each one with justifica
 
 Bare verdicts are forbidden. Each verdict must justify itself.
 
-The main thread writes the sidecar `<plan>.yagni.md` with one entry per finding capturing the verdict. Sidecars are gitignored — `.gitignore` covers `docs/superpowers/plans/*.yagni.md`, alongside the matching `.review.md` rule.
+The main thread writes the sidecar `<plan>.yagni.md` with one entry per finding capturing the verdict.
 
 **Main-thread duties after triage** (inside the writing-plans flow):
 
@@ -126,14 +126,8 @@ This skill is invoked from the `superpowers:writing-plans` flow.
 
 **Forbidden while inside a superpower flow:**
 - Overriding or blocking the writing-plans flow.
-- Auto-promoting to a heavier output tier (no full reports while inside the flow).
 - Gating the user-review step on a failed audit. HARD tier emits stronger language only.
 - Suggesting that writing-plans or plan-reviewer be re-run on the skill's own authority.
-
-**If heavier output is warranted:**
-1. Deliver the lightweight per-finding + tier output inline.
-2. Append a one-line note: "Standalone deeper review available by invoking `yagni-guardian` outside the superpower flow."
-3. Return the sentinel.
 
 **User escape phrases inside a flow:**
 - "skip yagni" / "skip yagni this session" — disables auto-injection for the current session.
