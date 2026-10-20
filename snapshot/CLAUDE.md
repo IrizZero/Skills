@@ -55,6 +55,10 @@ Bad UI and broken tests reaching prod is what this prevents.
 
 None of this applies when I ask for cleanup, refactoring or "while you're in there", or when an `executing-plans` step or the plan/spec already scopes the change.
 
+## Superpowers flow hooks
+
+- **After writing-plans saves a plan**, once its Self-Review is done and before its Execution Handoff message: run the `plan-reviewer` skill on that plan. Advisory: a failed review never blocks the flow, so note it in chat and hand off. "skip review" turns it off for the session.
+
 ## Writing
 
 - Never use the em dash; use a plain hyphen "-".

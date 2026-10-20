@@ -1,0 +1,83 @@
+{
+  "skill_name": "plan-reviewer",
+  "notes": "Eval target is the plan-reviewer SUBAGENT (the review intelligence, correctness lens plus YAGNI lens). With-skill arm dispatches subagent_type=plan-reviewer; baseline arm dispatches general-purpose with a plain 'review this plan' ask. Each fixture is a self-contained mini-codebase + plan.md with a known planted outcome. Fixtures 0-2 use the older '## Affected files' plan form on purpose (fallback path); yagni-bloat uses the superpowers 7.0 form (Spec header, per-task Files blocks).",
+  "evals": [
+    {
+      "id": 0,
+      "name": "caller-breakage",
+      "prompt": "Review the implementation plan at skills/plan-reviewer/fixtures/caller-breakage/plan.md against the code in skills/plan-reviewer/fixtures/caller-breakage/. Surface any problems before I start coding.",
+      "expected_output": "A Blocker: the plan renames/changes the signature of validate_token but lists only src/auth.py as affected, while src/api.py and src/middleware.py both import and call validate_token -> caller breakage. Output follows the strict schema.",
+      "files": [
+        "skills/plan-reviewer/fixtures/caller-breakage/plan.md",
+        "skills/plan-reviewer/fixtures/caller-breakage/src/auth.py",
+        "skills/plan-reviewer/fixtures/caller-breakage/src/api.py",
+        "skills/plan-reviewer/fixtures/caller-breakage/src/middleware.py"
+      ],
+      "assertions": [
+        {"name": "schema_present", "text": "Output contains '## Findings', '### Blockers', '### Warnings', '### Suggestions', '### YAGNI' and '## Context inspected' headers."},
+        {"name": "finding_tag_format", "text": "Every severity bullet matches the regex ^- \\[(B|W|S)\\d+\\] and every YAGNI bullet matches ^- \\[Y[1-7]\\]."},
+        {"name": "no_fabricated_refs", "text": "Every file path cited in a finding exists in the fixture (auth.py, api.py, middleware.py); no invented paths."},
+        {"name": "blocker_present", "text": "At least one Blocker [B*] is raised."},
+        {"name": "caller_breakage_identified", "text": "A finding references api.py and/or middleware.py as the broken callers of validate_token."}
+      ]
+    },
+    {
+      "id": 1,
+      "name": "clean-plan",
+      "prompt": "Review the implementation plan at skills/plan-reviewer/fixtures/clean-plan/plan.md against the code in skills/plan-reviewer/fixtures/clean-plan/. Surface any problems before I start coding.",
+      "expected_output": "No Blockers, no Warnings, no YAGNI findings. The plan adds a brand-new subtract() with no callers and includes a test. Ideally zero findings (anti-padding); at most a minor Suggestion. Output follows the strict schema.",
+      "files": [
+        "skills/plan-reviewer/fixtures/clean-plan/plan.md",
+        "skills/plan-reviewer/fixtures/clean-plan/src/calc.py",
+        "skills/plan-reviewer/fixtures/clean-plan/tests/test_calc.py"
+      ],
+      "assertions": [
+        {"name": "schema_present", "text": "Output contains '## Findings', '### Blockers', '### Warnings', '### Suggestions', '### YAGNI' and '## Context inspected' headers."},
+        {"name": "finding_tag_format", "text": "Every severity bullet matches the regex ^- \\[(B|W|S)\\d+\\] and every YAGNI bullet matches ^- \\[Y[1-7]\\]."},
+        {"name": "no_blockers_or_warnings", "text": "Zero Blockers [B*] and zero Warnings [W*] are raised on this clean plan."},
+        {"name": "no_yagni_findings", "text": "The YAGNI tier is NONE and there are zero [Y*] bullets."},
+        {"name": "lean_not_padded", "text": "At most one finding total (Suggestion) - the reviewer does not pad a clean plan to look thorough."}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "path-traversal",
+      "prompt": "Review the implementation plan at skills/plan-reviewer/fixtures/path-traversal/plan.md against the code in skills/plan-reviewer/fixtures/path-traversal/. Surface any problems before I start coding.",
+      "expected_output": "A security finding tagged 'severity-override: security': removing os.path.basename and joining the user-supplied name directly enables path traversal (e.g. ?name=../../etc/passwd). References src/files.py. Output follows the strict schema.",
+      "files": [
+        "skills/plan-reviewer/fixtures/path-traversal/plan.md",
+        "skills/plan-reviewer/fixtures/path-traversal/src/files.py",
+        "skills/plan-reviewer/fixtures/path-traversal/src/routes.py"
+      ],
+      "assertions": [
+        {"name": "schema_present", "text": "Output contains '## Findings', '### Blockers', '### Warnings', '### Suggestions', '### YAGNI' and '## Context inspected' headers."},
+        {"name": "finding_tag_format", "text": "Every severity bullet matches the regex ^- \\[(B|W|S)\\d+\\] and every YAGNI bullet matches ^- \\[Y[1-7]\\]."},
+        {"name": "no_fabricated_refs", "text": "Every file path cited in a finding exists in the fixture (files.py, routes.py); no invented paths."},
+        {"name": "security_tagged", "text": "At least one finding carries the 'severity-override: security' tag."},
+        {"name": "traversal_location_identified", "text": "A finding references src/files.py as the path-traversal site (basename removal / direct join of user input)."}
+      ]
+    },
+    {
+      "id": 3,
+      "name": "yagni-bloat",
+      "prompt": "Review the implementation plan at skills/plan-reviewer/fixtures/yagni-bloat/plan.md against the code in skills/plan-reviewer/fixtures/yagni-bloat/. Surface any problems before I start coding.",
+      "expected_output": "YAGNI tier HARD with Y4 scored against spec.md: [Y4] the profanity filter is outside the spec, [Y1] ISlugifier has one implementation, [Y2] formatStringHelper has a single caller, and slugifyConfig is a knob nothing flips ([Y3], or [Y4] since the spec rules configurability out). The TypeError guard on non-string input is NOT flagged: the route passes req.body.title unchecked, a trust boundary. Output follows the strict schema.",
+      "files": [
+        "skills/plan-reviewer/fixtures/yagni-bloat/plan.md",
+        "skills/plan-reviewer/fixtures/yagni-bloat/spec.md",
+        "skills/plan-reviewer/fixtures/yagni-bloat/package.json",
+        "skills/plan-reviewer/fixtures/yagni-bloat/src/routes/posts.ts"
+      ],
+      "assertions": [
+        {"name": "schema_present", "text": "Output contains '## Findings', '### Blockers', '### Warnings', '### Suggestions', '### YAGNI' and '## Context inspected' headers, plus the '**YAGNI tier:**' and '**Y4:**' lines."},
+        {"name": "finding_tag_format", "text": "Every severity bullet matches the regex ^- \\[(B|W|S)\\d+\\]; every YAGNI bullet matches ^- \\[Y[1-7]\\] followed by its canonical label (speculative abstraction, single-caller wrapper, dead config flag, feature outside request, premature optimization, existing utility, defensive code)."},
+        {"name": "tier_hard_y4_scored", "text": "The YAGNI tier is HARD and the Y4 line says scored."},
+        {"name": "profanity_cut", "text": "A [Y4] finding names the profanity filter (filterProfanity / profanity-filter.ts)."},
+        {"name": "abstraction_cut", "text": "A [Y1] finding names ISlugifier."},
+        {"name": "wrapper_cut", "text": "A [Y2] finding names formatStringHelper."},
+        {"name": "config_cut", "text": "A [Y3] or [Y4] finding names slugifyConfig."},
+        {"name": "carve_out_respected", "text": "No finding of any kind asks to remove the TypeError guard for non-string input; it sits at a trust boundary (req.body.title, src/routes/posts.ts)."}
+      ]
+    }
+  ]
+}

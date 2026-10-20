@@ -10,7 +10,7 @@
   "interface": {
     "displayName": "Amier Workflow Kit",
     "shortDescription": "Practical review and thinking workflows for Codex",
-    "longDescription": "Seven focused workflows for extracting project decisions, pressure-testing ideas, advising on databases and interfaces, creating research briefs, and guiding setup conversations.",
+    "longDescription": "Eight focused workflows for reviewing implementation plans against the repository, extracting project decisions, pressure-testing ideas, advising on databases and interfaces, creating research briefs, and guiding setup conversations.",
     "developerName": "Amier Ashraf Hadi",
     "category": "Productivity",
     "capabilities": ["Read", "Write", "Interactive"],
