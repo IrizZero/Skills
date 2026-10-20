@@ -8,8 +8,9 @@ The intended flow: on a new machine you tell its Claude Code agent *"install my 
 
 | Path | What | Install handling |
 |------|------|------------------|
-| `skills/` | 19 personal skills (one folder each) | **additive copy** into `~/.claude/skills/` |
-| `agents/` | 5 subagent definitions (`*.md`) | **additive copy** into `~/.claude/agents/` |
+| `skills/` | 16 personal skills (one folder each) | **additive copy** into `~/.claude/skills/` |
+| `agents/` | 2 subagent definitions (`*.md`) | **additive copy** into `~/.claude/agents/` |
+| `parked/` | superpowers add-ons parked 2026-10-20 (plan-reviewer, solution-auditor, yagni-guardian + their flow hooks) | **not installed** - see `parked/README.md` |
 | `commands/` | slash commands (`*.md`) - none right now | **additive copy** into `~/.claude/commands/` |
 | `hooks/` | hook scripts `settings.json` runs: `guard.js` (blocks rule breaks), `serena-notice.js` (subagent note) | **agent copy** into `~/.claude/hooks/` (step 4) |
 | `statusline.js` | status line: caveman badge + context % | **agent copy** into `~/.claude/` (step 4) |
@@ -85,8 +86,8 @@ If `node` is not on PATH, drop `statusLine` and `hooks` and tell the user.
 
 **5. Verify** against `manifest.json`:
 
-- `~/.claude/skills/` contains the 19 folders in `manifest.skills`
-- `~/.claude/agents/` contains 5 `*.md`
+- `~/.claude/skills/` contains the 16 folders in `manifest.skills`
+- `~/.claude/agents/` contains 2 `*.md`
 - `~/.claude/hooks/` contains `guard.js` and `serena-notice.js`, and `~/.claude/statusline.js` exists
 - `node ~/.claude/hooks/guard.js` with an empty stdin exits 0 and prints nothing
 Report: what was installed, what was backed up, and the `settings.json` / `CLAUDE.md` actions you took.

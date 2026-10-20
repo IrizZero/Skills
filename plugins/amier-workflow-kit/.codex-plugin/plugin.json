@@ -10,12 +10,12 @@
   "interface": {
     "displayName": "Amier Workflow Kit",
     "shortDescription": "Practical review and thinking workflows for Codex",
-    "longDescription": "Ten focused workflows for extracting project decisions, reviewing plans and solutions, checking YAGNI, advising on databases and interfaces, creating research briefs, and guiding setup conversations.",
+    "longDescription": "Seven focused workflows for extracting project decisions, pressure-testing ideas, advising on databases and interfaces, creating research briefs, and guiding setup conversations.",
     "developerName": "Amier Ashraf Hadi",
     "category": "Productivity",
     "capabilities": ["Read", "Write", "Interactive"],
     "defaultPrompt": [
-      "Review my implementation plan against this repository.",
+      "Review this database schema and its queries.",
       "Pressure-test this idea before I commit to it.",
       "Turn my project thinking into a README and ADRs."
     ]

@@ -97,25 +97,3 @@ Verify web UI yourself in a browser; do not ask me to eyeball it. Passwords and 
 
 The SubagentStart hook `~/.claude/hooks/serena-notice.js` injects the Serena notice (plus a worktree caveat in linked worktrees) into `general-purpose`, `claude` and `Plan` subagents when the repo's `.mcp.json` lists Serena.
 For any other subagent type that touches code and has MCP access, paste the notice yourself: its text is the `NOTICE` constant in that script.
-
-## Superpowers flow hooks
-
-These fire inside `superpowers:*` flows. Each named skill carries its own procedure and main-thread duties; this section only says when to run it. All are advisory: a failure never blocks the flow, so note it in chat and continue.
-
-- **When to use skills:** invoke a skill when it clearly fits the task, not on a 1% chance (this overrides using-superpowers).
-  Brainstorming is for new features and design changes; small edits, config changes and bug fixes go through my confirm-before-editing gate instead.
-
-- **Brainstorming step 4**, before you propose approaches: run `solution-auditor` and follow it, including its exit check between steps 7 and 8. "skip audit" turns it off for the session.
-- **End of brainstorming**, before writing-plans starts: sort every open question. Sharp (you can state it precisely now, even if it is unanswerable) -> a plan decision or step. Blurry (you cannot phrase it sharply) -> the plan's fog section, verbatim and unsliced. Never pre-slice fog into steps.
-- **Every plan from writing-plans ends with:**
-
-      ## Not yet specified
-      <in scope but too blurry to plan. If empty, say "way is fully clear".>
-
-      ## Out of scope
-      <consciously ruled out, one-line reason each>
-
-  These sections are not placeholders: writing-plans' "No Placeholders" list and its self-review "add the task" step do not apply to items that belong in "Not yet specified".
-
-- **After writing-plans saves a plan** (normally under `docs/superpowers/plans/`): run `plan-reviewer`, then `yagni-guardian` on the same plan, passing its path, then go to my review gate. Triage and record findings as each skill's verdict policy says. "skip review" and "skip yagni" turn them off.
-- **During executing-plans**, when something is blurry: listed in the fog sections -> skip it; not listed -> stop and ask. A plan missing its fog sections -> flag it in chat and continue.

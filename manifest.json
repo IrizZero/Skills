@@ -29,17 +29,21 @@
     "keys": ["OWNER_NAME", "OWNER_EMAIL", "CHATGPT_EMAIL"],
     "note": "Public repo: personal values are {{KEY}} placeholders. install fills them in the installed copies from this file (KEY=value lines); missing file -> placeholders stay and install lists them. backup.ps1 swaps real values back to {{KEY}} and refuses to run without it. Never commit this file."
   },
-  "counts": { "skills": 19, "agents": 5, "commands": 0, "hooks": 2 },
+  "counts": { "skills": 16, "agents": 2, "commands": 0, "hooks": 2 },
   "skills": [
     "box-runbook", "brain-to-docs", "chrome-devtools-axi", "codex-exec", "database-expert", "decisions",
     "folder-specific-claude-and-agents-md", "handoff", "neutral-handoff-prompt",
-    "plan-kickoff-prompt", "plan-reviewer", "research-prompt", "setup-help",
-    "solution-auditor", "stress-test", "teach", "ui-ux-advisor", "ui-ux-init",
-    "yagni-guardian"
+    "plan-kickoff-prompt", "research-prompt", "setup-help",
+    "stress-test", "teach", "ui-ux-advisor", "ui-ux-init"
   ],
   "agents": [
-    "plan-reviewer.md", "solution-auditor.md", "ui-ux-advisor.md", "ui-ux-init.md", "yagni-guardian.md"
+    "ui-ux-advisor.md", "ui-ux-init.md"
   ],
+  "parked": {
+    "note": "Not installed. Superpowers add-ons parked 2026-10-20 when superpowers 7.0.0 restructured its flows; see parked/README.md.",
+    "skills": ["plan-reviewer", "solution-auditor", "yagni-guardian"],
+    "agents": ["plan-reviewer.md", "solution-auditor.md", "yagni-guardian.md"]
+  },
   "commands": [],
   "notSynced": [
     ".credentials.json", "*.key", "*.pem", ".env", "personal.env",
