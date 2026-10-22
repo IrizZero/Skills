@@ -13,8 +13,8 @@ The intended flow: on a new machine you tell its Claude Code agent *"install my 
 | `parked/` | superpowers add-ons parked 2026-10-20 (solution-auditor, yagni-guardian + the old flow hooks; plan-reviewer was restored with a YAGNI lens) | **not installed** - see `parked/README.md` |
 | `commands/` | slash commands (`*.md`) - none right now | **additive copy** into `~/.claude/commands/` |
 | `hooks/` | hook scripts `settings.json` runs: `guard.js` (blocks rule breaks), `serena-notice.js` (subagent note) | **agent copy** into `~/.claude/hooks/` (step 4) |
-| `statusline.js` | status line: caveman badge + context % | **agent copy** into `~/.claude/` (step 4) |
-| `settings.json` | plugin + hook + statusline + model config | **MERGE**, do not overwrite |
+| `statusline.js` | status line: context-window usage | **agent copy** into `~/.claude/` (step 4) |
+| `settings.json` | plugin + hook + statusline config | **MERGE**, do not overwrite |
 | `snapshot/CLAUDE.md` | global instructions (kept out of the repo root so it does not load as project instructions) | **hands-off** - diff + merge by hand |
 | `manifest.json` | machine-readable install spec (source→dest, merge keys, counts) | — |
 | `install.ps1` / `install.sh` | mechanical installer (skills/agents/commands) | — |
@@ -76,12 +76,11 @@ Leave the target's `model`, `permissions`, `effortLevel`, and everything else un
 Rewrite those paths to the target's `~/.claude`.
 If `node` is not on PATH, drop `statusLine` and `hooks` and tell the user.
 
-**3. `CLAUDE.md` — hands-off.** Do NOT overwrite `~/.claude/CLAUDE.md`. Copy this repo's `snapshot/CLAUDE.md` to `~/.claude/CLAUDE.md.from-repo`, fill its `{{KEY}}` placeholders from `~/.claude/personal.env`, and tell the user to diff + merge manually — it holds per-person identity, token-rotation dates, and absolute paths that are wrong on another box.
+**3. `CLAUDE.md` — hands-off.** Do NOT overwrite `~/.claude/CLAUDE.md`. Copy this repo's `snapshot/CLAUDE.md` to `~/.claude/CLAUDE.md.from-repo`, fill its `{{KEY}}` placeholders from `~/.claude/personal.env`, and tell the user to diff + merge manually — it holds per-person identity, box facts, and absolute paths that are wrong on another box.
 
 **4. Hook scripts, status line, plugins.**
 
 - Copy this repo's `hooks/` into `~/.claude/hooks/` and `statusline.js` into `~/.claude/`. Move any same-named file to `~/.claude/install-backups/<timestamp>/` first.
-- Caveman (the plugin) comes from `caveman@caveman` in `settings.json`. Its default mode on the source box is **off**, set outside `~/.claude`: `%APPDATA%\caveman\config.json` (Windows) or `~/.config/caveman/config.json` (macOS / Linux) holding `{ "defaultMode": "off" }`. Create that file only if the user wants the same default.
 - Tell the user to **restart Claude Code**: plugins reinstall from `enabledPlugins` + `extraKnownMarketplaces`, and the merged hooks load.
 
 **5. Verify** against `manifest.json`:

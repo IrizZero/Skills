@@ -9,14 +9,14 @@
   ],
   "agentCopied": [
     { "src": "hooks", "dest": "hooks", "type": "dir", "note": "hook scripts run by settings.json 'hooks' (guard.js, serena-notice.js). Not copied by install.ps1/install.sh: the installing agent copies them, backing up same-named files. Need node on PATH." },
-    { "src": "statusline.js", "dest": "statusline.js", "type": "file", "note": "status line script run by settings.json 'statusLine' (caveman badge + context %). Agent-copied; needs node." }
+    { "src": "statusline.js", "dest": "statusline.js", "type": "file", "note": "status line script run by settings.json 'statusLine' (context-window usage). Agent-copied; needs node." }
   ],
   "mergeSettings": {
     "src": "settings.json",
     "dest": "settings.json",
     "mergeKeys": ["enabledPlugins", "extraKnownMarketplaces", "statusLine", "hooks"],
     "preserveTargetKeys": ["model", "permissions", "effortLevel"],
-    "notes": "MERGE, do not overwrite. statusLine and hooks run node scripts by absolute path under this box's ~/.claude: rewrite those paths to the target's ~/.claude, and drop the entries if node is missing. Caveman itself comes from the caveman@caveman marketplace plugin declared here and reinstalls after a Claude Code restart."
+    "notes": "MERGE, do not overwrite. statusLine and hooks run node scripts by absolute path under this box's ~/.claude: rewrite those paths to the target's ~/.claude, and drop the entries if node is missing."
   },
   "handsOff": [
     {
