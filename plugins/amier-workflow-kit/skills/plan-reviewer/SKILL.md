@@ -7,13 +7,13 @@ description: Review an implementation plan against the current repository before
 
 A read-only senior-engineer review of a plan against the repository.
 superpowers 7.0 already checks the plan against its spec (Self-Review) and against itself (the executor's pre-flight scan); this review checks it against the code, and cuts what it does not need.
-Advisory only: a failed review never blocks the flow. "skip review" turns it off for the session.
+A failed review never blocks the flow. A Blocker that is not fixed (DEFER or DISMISS) is named in the handoff, and execution waits for the user's explicit OK on it. "skip review" turns it off for the session.
 
 ## Resolve the scope
 
 1. Use the plan path given. Otherwise the newest `*.md` under `docs/superpowers/plans/`, excluding `*.review.md` and `*.yagni.md`. Ask only when the target is ambiguous.
 2. Pin the revision: `git rev-parse --short HEAD`, dirty flag from `git status --porcelain`, plan hash from `git hash-object <plan>`. Edit nothing while the review runs.
-3. Read the whole plan, its `**Spec:**` (if it resolves), its `## Global Constraints` and `## Review Focus`, the project instructions, and the existing `<plan>.review.md` sidecar if present.
+3. Read the whole plan, its `**Spec:**` (if it resolves, noting the spec's `**Scope:**` line), its `## Global Constraints` and `## Review Focus`, the project instructions, and the existing `<plan>.review.md` sidecar if present.
 4. Affected files: every task's `**Files:**` block; older plans: `## Affected files`; otherwise paths in the plan body. A file the plan creates is not missing.
 5. Search for callers, dependents, related utilities, established patterns and tests for every symbol the plan adds or changes.
 
@@ -42,7 +42,7 @@ Its report is evidence to verify, not authority. It is the same model lineage as
 - `[Y1]` speculative abstraction: one implementation, no second consumer named.
 - `[Y2]` single-caller wrapper: one call site, no direct test, no planned caller.
 - `[Y3]` dead config flag: a knob nothing flips.
-- `[Y4]` feature outside request: absent from the spec. Skip Y4 when no spec was read, and say so.
+- `[Y4]` feature outside request: absent from the spec, or beyond the spec's `**Scope:**` line even when the spec includes it. Skip Y4 when no spec was read, and say so. Work beyond the `**Scope:**` line is the user's call, since they approved the spec: end its line with `User: keep or cut?` after the `Cut:`.
 - `[Y5]` premature optimization: caching, pooling, batching, indexing or lazy loading with no measured need.
 - `[Y6]` existing utility: duplicates one the repository already has.
 - `[Y7]` defensive code: guards a state the plan's own contracts make unreachable, away from any trust boundary.
@@ -89,6 +89,7 @@ Keep empty headings so a clean result is explicit. Never fabricate a citation. V
 
 ## After the review
 
-In a writing-plans flow: give each finding `ACCEPT`, `DISMISS` or `DEFER` with a reason and evidence; apply the accepted ones to the plan; rerun writing-plans' full Self-Review; write or update `<plan>.review.md` (revision, findings, verdicts, YAGNI tier); then put one summary line and every DEFER as a question in the Execution Handoff.
+In a writing-plans flow: give each finding `ACCEPT`, `DISMISS` or `DEFER` with a reason and evidence; apply the accepted ones to the plan; rerun writing-plans' full Self-Review; write or update `<plan>.review.md` (revision, findings, verdicts, YAGNI tier); then put one summary line, every DEFER as a question and every Blocker that is not fixed (with its verdict) in the Execution Handoff.
+A substantiated Y4 beyond the spec's `**Scope:**` line is always DEFER: the user keeps or cuts it.
 A dismissed security finding needs explicit security analysis and is named in the handoff.
 Outside the flow: show the findings and stop; edit the plan only on the user's OK.

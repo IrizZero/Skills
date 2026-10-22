@@ -29,7 +29,7 @@ The dispatching skill passes:
 ## Process
 
 1. Read the plan in full. Note its `**Spec:**`, its `## Global Constraints` (binding on every task) and its `## Review Focus`.
-2. Read the spec if `spec_path` resolves. If it does not, or the read fails, the YAGNI lens skips Y4.
+2. Read the spec if `spec_path` resolves. If it does not, or the read fails, the YAGNI lens skips Y4. Note its `**Scope:**` line, if any.
 3. If `prior_sidecar` exists, read it. A finding it DISMISSed is not raised again unless its plan section, the spec or the cited code changed since; when you raise it again, start the line with `re-raised: <what changed>`. A DEFERred finding comes back if it is still open. Check that ACCEPTed fixes are in the plan.
 4. Collect the affected files: every task's `**Files:**` block (Create / Modify / Test). Older plans: the `## Affected files` section. Neither: paths mentioned in the plan body. A file the plan creates is not missing.
 5. Read each affected file. Grep for callers, dependents, related utilities, established patterns and naming collisions for every symbol the plan adds or changes.
@@ -59,12 +59,14 @@ Flag a signal only when the plan gives no evidence of need. A named second calle
 | Y1 speculative abstraction | interface, base class, strategy or factory with one implementation and no second consumer named in the plan or spec | the plan names 2+ consumers, or an ADR requires it | inline it; add the abstraction when a second consumer is real |
 | Y2 single-caller wrapper | a helper called from one site, no direct test, no future caller named | a test targets it directly, a second caller is planned, or it is public API | inline at the caller |
 | Y3 dead config flag | a knob, flag or option the plan never flips and no caller flips | a planned rollout, A/B test or runbook flips it | hard-code the default |
-| Y4 feature outside request | a feature or surface absent from the spec | no spec was read (skip Y4), or it is a carve-out below | drop it; revisit in a later spec |
+| Y4 feature outside request | a feature or surface absent from the spec, or beyond the spec's `**Scope:**` line even when the spec includes it | no spec was read (skip Y4), or it is a carve-out below | drop it; revisit in a later spec |
 | Y5 premature optimization | caching, pooling, batching, indexing or lazy loading with no measured bottleneck | the plan cites a metric, load test, profile or SLA | the simple version first |
 | Y6 existing utility | new code whose behavior matches an existing utility (grep near-identical names and signatures) | the plan names the existing utility and says why it cannot be reused | reuse `<existing>` at `<file:line>` |
 | Y7 defensive code | try/catch, validation or fallback for a state the plan's own contracts make unreachable | it sits at a trust boundary: user input, external API, IPC, file I/O, deserialization | remove the guard |
 
 **Carve-outs, never flagged:** trust-boundary defense (validation, sanitization, auth checks, rollback); test infrastructure (fixtures, helpers, mocks); observability (logging, metrics, tracing); security controls (rate limits, encryption, secrets handling, CSRF/XSS); concurrency safety (locks, idempotency, dedupe, ordering). Check them before raising any Y finding.
+
+A Y4 beyond the `**Scope:**` line is the owner's call, since he approved the spec: end its line with `Owner: keep or cut?` after the `Cut:`.
 
 **Tier:** no Y findings = NONE; 1-4 without Y4 = SOFT; 5+ without Y4 = HARD; any Y4 = HARD.
 When Y4 was skipped, a NONE or SOFT tier does not clear scope creep; the `Y4:` line says so.

@@ -1,6 +1,7 @@
 ---
 name: ui-ux-init
 description: Bootstrap docs/ui-ux/DESIGN.md for a project that lacks one. Asks for project context (paste a brief, point to an overview file via --overview, or `skip` for neutral defaults). Subagent reasons about domain and proposes 3 distinct themed variants — different layout primitive, token scale, component default; all share a domain-themed accent palette family. User picks one variant, then picks stack (Razor / Flutter / Next-React / Vue / generic-translatable). Skill writes DESIGN.md filled from picked variant + stack template. Generic-translatable stack includes per-section Translation hints for downstream agents on other stacks. Ships per-variant standalone HTML preview in .ui-ux-init-preview/ for visual side-by-side comparison. Refuses to overwrite existing DESIGN.md without --force. Standalone, user-invoked via phrases "ui init", "ui-ux init", "bootstrap design", "init design".
+disable-model-invocation: true
 ---
 
 # ui-ux-init

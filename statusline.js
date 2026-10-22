@@ -1,42 +1,9 @@
 #!/usr/bin/env node
-// Status line: caveman badge (ported from the caveman plugin's caveman-statusline.ps1, same
-// hardening) plus context-window usage. Wired as statusLine.command in ~/.claude/settings.json.
+// Status line: context-window usage. Wired as statusLine.command in ~/.claude/settings.json.
+// (The caveman badge from the Skills repo copy is removed on this box: caveman is not used.)
 'use strict';
 
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
-
 const ESC = '\x1b';
-const ORANGE = (s) => `${ESC}[38;5;172m${s}${ESC}[0m`;
-const claudeDir = process.env.CLAUDE_CONFIG_DIR || path.join(os.homedir(), '.claude');
-
-// Read a small flag file: refuse symlinks/junctions and anything over 64 bytes, so a planted
-// link can't make the status line render another file's bytes on every keystroke.
-function readSmall(file) {
-  try {
-    const st = fs.lstatSync(file);
-    if (st.isSymbolicLink() || !st.isFile() || st.size > 64) return null;
-    return fs.readFileSync(file, 'utf8');
-  } catch {
-    return null;
-  }
-}
-
-function caveman() {
-  const raw = readSmall(path.join(claudeDir, '.caveman-active'));
-  if (raw === null) return '';
-  const mode = raw.split(/\r?\n/)[0].trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
-  const valid = ['off', 'lite', 'full', 'ultra', 'wenyan-lite', 'wenyan', 'wenyan-full', 'wenyan-ultra', 'commit', 'review', 'compress'];
-  if (!valid.includes(mode)) return '';
-  let out = ORANGE(mode === 'full' ? '[CAVEMAN]' : `[CAVEMAN:${mode.toUpperCase()}]`);
-  if (process.env.CAVEMAN_STATUSLINE_SAVINGS !== '0') {
-    const s = readSmall(path.join(claudeDir, '.caveman-statusline-suffix'));
-    const clean = s === null ? '' : s.trimEnd().replace(/[\x00-\x1f]/g, '');
-    if (clean) out += ' ' + ORANGE(clean);
-  }
-  return out;
-}
 
 function context(input) {
   const cw = input.context_window || {};
@@ -54,6 +21,6 @@ process.stdin.setEncoding('utf8');
 process.stdin.on('data', (c) => { raw += c; });
 process.stdin.on('end', () => {
   let input = {};
-  try { input = JSON.parse(raw || '{}'); } catch { /* render badge only */ }
-  process.stdout.write([caveman(), context(input)].filter(Boolean).join(' '));
+  try { input = JSON.parse(raw || '{}'); } catch { /* render nothing */ }
+  process.stdout.write(context(input));
 });

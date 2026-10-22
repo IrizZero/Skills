@@ -33,7 +33,7 @@ between the receiver and invisible steering. Apply them strictly.
 
 - The prompt goes in **chat, in a fenced code block**. Never write it to a
   file unless the user names a path.
-- Write the prompt in normal prose (no caveman compression) - the receiving
+- Write the prompt in normal prose (no compressed or terse style mode) - the receiving
   session did not opt into any style mode.
 - Neutrality governs problem-domain content only. Process and tooling
   instructions (which skill to start with, output format, MCP notices,

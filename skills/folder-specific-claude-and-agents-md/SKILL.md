@@ -2,6 +2,7 @@
 name: folder-specific-claude-and-agents-md
 description: Create a specialized CLAUDE.md (+ AGENTS.md symlink) inside a specific folder to give future agents folder-scoped context. Use when the user asks to create a CLAUDE.md for a folder, write folder instructions, or add agent context to a directory.
 user-invocable: true
+disable-model-invocation: true
 ---
 
 # Folder CLAUDE.md Creation
@@ -11,7 +12,7 @@ Generate a focused `CLAUDE.md` inside a target folder, optionally with an `AGENT
 ## Process
 
 ### Step 1: Confirm the target folder + sanity-check it deserves a file
-Ask the user which folder. Use the absolute path of the real repo (e.g. `C:/Users/amierashraf.hadi/Downloads/GIT/<repo>`).
+Ask the user which folder. Use the absolute path of the real repo (e.g. `C:/git/<repo>`).
 
 **Only create a file if the folder has context needed across multiple sessions** — active evolving work, specific conventions, ongoing decisions. A folder of static reference files does NOT need one (agents can read on demand). If unsure, ask the user.
 

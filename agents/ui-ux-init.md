@@ -1,8 +1,8 @@
 ---
 name: ui-ux-init
-description: Reasoning-only subagent for the ui-ux-init skill. Given a project-context string (paste or file content), reasons about the project's domain and returns exactly 3 distinct variant configs differing on at least 2 of: layout primitive, token scale, component default. All 3 variants share a domain-themed accent palette family. Returns axis values only — no DESIGN.md prose, no HTML. No file tools (pure reasoning).
+description: "Reasoning-only subagent for the ui-ux-init skill. Given a project-context string (paste or file content), reasons about the project's domain and returns exactly 3 distinct variant configs differing on at least 2 of: layout primitive, token scale, component default. All 3 variants share a domain-themed accent palette family. Returns axis values only - no DESIGN.md prose, no HTML. Pure reasoning: Read is its only tool and it does not need it."
 model: opus
-tools: []
+tools: Read
 ---
 
 # Role

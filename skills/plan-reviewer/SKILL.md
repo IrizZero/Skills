@@ -1,6 +1,6 @@
 ---
 name: plan-reviewer
-description: Use after superpowers:writing-plans has saved a plan and finished its Self-Review, before the Execution Handoff message, and whenever the user says "review plan", "re-review plan" or "plan-reviewer". Reviews the plan against the real repository (callers, patterns, security, citations) with a YAGNI lens (Y1-Y7), through a Claude Opus subagent plus a gpt-6-sol cross-check. Advisory only - never blocks the flow.
+description: Use after superpowers:writing-plans has saved a plan and finished its Self-Review, before the Execution Handoff message, and whenever the user says "review plan", "re-review plan" or "plan-reviewer". Reviews the plan against the real repository (callers, patterns, security, citations) with a YAGNI lens (Y1-Y7), through a Claude Opus subagent plus a gpt-6-sol cross-check. A failed reviewer never blocks the flow; an unfixed Blocker waits for the owner.
 ---
 
 # Plan Reviewer
@@ -14,7 +14,8 @@ Two reviewers of different lineage, because a model reviewing its own company's 
 1. **Opus subagent** (`plan-reviewer` agent, always runs). The rubric is `~/.claude/agents/plan-reviewer.md`.
 2. **`gpt-6-sol` at high through Codex** (gated, see step 3). Reads the same rubric and scans cold in parallel with Opus, never seeing Opus's findings. Then, resumed in the same Codex session, it reports only where it disagrees with Opus.
 
-Advisory only. A failed reviewer never blocks the flow: say so in the handoff and continue.
+A failed reviewer never blocks the flow: say so in the handoff and continue.
+A Blocker that is not fixed (DEFER or DISMISS) is named in the handoff, and execution waits for the owner's explicit OK on it.
 
 ## When
 
@@ -28,7 +29,7 @@ Advisory only. A failed reviewer never blocks the flow: say so in the handoff an
 2. **Pin the inputs.**
    - `spec_path` from the plan's `**Spec:**` line (`null` if absent).
    - `prior_sidecar`: `<plan>.review.md` if it exists.
-   - `revision`: `git rev-parse --short HEAD`, dirty = `git status --porcelain` is non-empty, plan hash = `git hash-object <plan>`.
+   - `revision`: `git rev-parse --short HEAD`, dirty = `git status --porcelain` is non-empty, plan hash = `git hash-object <plan>`, spec hash = `git hash-object <spec>` when the spec exists.
    - `read_at`: `working tree` unless reviewing against a past commit.
 
    Nothing in the plan or the repository is edited while the reviewers run, so both see the same contents.
@@ -62,6 +63,7 @@ Advisory only. A failed reviewer never blocks the flow: say so in the handoff an
    - `ACCEPT - <reason + file:line>`: verified against the code yourself, not taken on a reviewer's word.
    - `DISMISS - <why it is wrong or already covered>`.
    - `DEFER - <what the owner must decide>`.
+   - A substantiated Y4 beyond the spec's `**Scope:**` line is DEFER: the owner keeps or cuts it.
 
    Weigh `[both]` as strong: dismiss only with counter-evidence. Engage a Sol REFUTE on its evidence. A DISMISS of a `severity-override: security` finding needs explicit security analysis, and the finding is named in the handoff whatever its verdict.
 8. **Apply** every ACCEPT and citation fix to the plan inline. In the flow, then rerun writing-plans' full Self-Review (an edit can break another task or a Global Constraint). No second automatic review.
@@ -73,11 +75,18 @@ Advisory only. A failed reviewer never blocks the flow: say so in the handoff an
 10. **Report in the Execution Handoff message**, before its review request:
     - one line: `Plan review: Opus ok|failed, Sol ok|failed|skipped (<why>); <n> findings (<b>B <w>W <s>S <y>Y, YAGNI <tier>); <a> accepted, <d> dismissed, <f> deferred.`
     - each DEFER as a question for the owner, most important first
+    - each Blocker that is not fixed, with its verdict
     - any security finding by name
 
 **Outside the flow** (manual run on an existing plan): steps 1-7, then show the findings with proposed verdicts and stop. Edit the plan and write the sidecar only on the owner's OK.
 
 **Re-review:** a full pass every time. The rubric reads the sidecar: dismissed findings stay quiet unless their section, the spec or the cited code changed; deferred ones come back. Update the sidecar rather than starting a new one.
+
+**Interrupted** (restart or crash): redo step 2 and compare.
+If the revision, plan hash or spec hash changed, rerun both passes from the start.
+Otherwise continue Opus with SendMessage to its agent id, and Sol with `codex exec resume <session id>` (the step 5 flags), asking each to finish its output.
+Resuming a Codex turn cut off mid-run is unproven: if it fails or the output is incomplete, rerun Sol cold.
+Note the interruption in the sidecar header.
 
 ## Sol prompt templates
 

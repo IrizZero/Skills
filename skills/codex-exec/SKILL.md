@@ -15,7 +15,8 @@ Auth, version, missing-model or model-cache problems: load the `box-runbook` ski
 codex exec -m gpt-6-sol -c model_reasoning_effort=high --sandbox read-only -o out.md "$(cat prompt.txt)" > run.log 2>&1 </dev/null
 ```
 
-- Always pass `-m`. The default model in `~/.codex/config.toml` is owner-gated, so a bare run triggers an approval prompt.
+- Always pass `-m`, so the model is picked by role, not by whatever `~/.codex/config.toml` defaults to (on this box `gpt-6-sol` at medium since 2026-10-20).
+- Outside a git repo, add `--skip-git-repo-check`.
 - Models, exact slugs only: `gpt-6-sol`, `gpt-6-luna`, `gpt-6-astra` (bare `luna` errors; there are no aliases).
   Efforts: `low | medium | high | xhigh | max`, plus `ultra` on sol and astra (max reasoning with automatic task delegation). There is no `--effort` flag.
 - Pass the prompt as an argument, never on stdin, and append `</dev/null`.
@@ -27,6 +28,14 @@ codex exec -m gpt-6-sol -c model_reasoning_effort=high --sandbox read-only -o ou
 - `-i <png>` attaches an image (repeat the flag for several). `codex_models_manager` cache errors on every run are benign.
 - Never use the openai-codex plugin's background/companion runtime: it deadlocked on Windows (2026-08-15, 2026-08-17).
   The plugin was removed on 2026-09-28; do not reinstall it.
+
+## Multi-round discussions
+
+- Keep the first run's `session id:` line from its log header. For later rounds of the same discussion, resume that session with the same model and effort:
+  `codex exec resume -m <same-model> -c model_reasoning_effort=<same-effort> -c sandbox_mode=read-only -o round2.md <session-id> "$(cat round2.txt)" > round2.log 2>&1 </dev/null`
+- `resume` has no `--sandbox` flag: `-c sandbox_mode=read-only` keeps it read-only, and the log header must say so.
+- Send only what changed (document path, revision, what to reread). Do not re-paste round 1.
+- Start a fresh session when you need an independent cold opinion: a resumed session is anchored on what it already said.
 
 ## Edit runs (workspace-write)
 

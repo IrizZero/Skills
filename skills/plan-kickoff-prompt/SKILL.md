@@ -16,7 +16,7 @@ given open questions re-litigates settled scope.
 
 - The prompt goes in **chat, in a fenced code block**. Never write it to a
   file unless the user names a path.
-- Normal prose, no caveman compression - the receiving session did not opt
+- Normal prose, no compressed or terse style mode - the receiving session did not opt
   into any style mode.
 
 ## Preconditions (check before writing)
