@@ -8,11 +8,11 @@ The intended flow: on a new machine you tell its Claude Code agent *"install my 
 
 | Path | What | Install handling |
 |------|------|------------------|
-| `skills/` | 18 personal skills (one folder each) | **additive copy** into `~/.claude/skills/` |
+| `skills/` | 19 personal skills (one folder each) | **additive copy** into `~/.claude/skills/` |
 | `agents/` | 3 subagent definitions (`*.md`) | **additive copy** into `~/.claude/agents/` |
 | `parked/` | superpowers add-ons parked 2026-10-20 (solution-auditor, yagni-guardian + the old flow hooks; plan-reviewer was restored with a YAGNI lens) | **not installed** - see `parked/README.md` |
 | `commands/` | slash commands (`*.md`) - none right now | **additive copy** into `~/.claude/commands/` |
-| `hooks/` | hook scripts `settings.json` runs: `guard.js` (blocks rule breaks), `serena-notice.js` (subagent note) | **agent copy** into `~/.claude/hooks/` (step 4) |
+| `hooks/` | hook scripts `settings.json` runs: `guard.js` (blocks rule breaks), `serena-notice.js` (subagent note), `overtime.js` (ODS work-hours toggle behind the `overtime` skill); plus `guard.test.js` (guard.js tests, `node guard.test.js`) | **agent copy** into `~/.claude/hooks/` (step 4) |
 | `statusline.js` | status line: context-window usage | **agent copy** into `~/.claude/` (step 4) |
 | `settings.json` | plugin + hook + statusline config | **MERGE**, do not overwrite |
 | `snapshot/CLAUDE.md` | global instructions (kept out of the repo root so it does not load as project instructions) | **hands-off** - diff + merge by hand |
@@ -68,7 +68,7 @@ Read this repo's `settings.json` and the target `~/.claude/settings.json`. Injec
 - `enabledPlugins`
 - `extraKnownMarketplaces`
 - `statusLine` - only if the target has none.
-- `hooks` - union-merge per event (`PreToolUse`, `SubagentStart`); do not drop the target's own hooks.
+- `hooks` - union-merge per event (`PreToolUse`, `SubagentStart`, `UserPromptSubmit`, `SessionStart`); do not drop the target's own hooks.
 
 Leave the target's `model`, `permissions`, `effortLevel`, and everything else untouched.
 
@@ -85,9 +85,9 @@ If `node` is not on PATH, drop `statusLine` and `hooks` and tell the user.
 
 **5. Verify** against `manifest.json`:
 
-- `~/.claude/skills/` contains the 18 folders in `manifest.skills`
+- `~/.claude/skills/` contains the 19 folders in `manifest.skills`
 - `~/.claude/agents/` contains 3 `*.md`
-- `~/.claude/hooks/` contains `guard.js` and `serena-notice.js`, and `~/.claude/statusline.js` exists
+- `~/.claude/hooks/` contains `guard.js`, `serena-notice.js` and `overtime.js`, and `~/.claude/statusline.js` exists
 - `node ~/.claude/hooks/guard.js` with an empty stdin exits 0 and prints nothing
 Report: what was installed, what was backed up, and the `settings.json` / `CLAUDE.md` actions you took.
 

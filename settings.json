@@ -17,7 +17,7 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Bash|PowerShell|Edit|Write|MultiEdit|NotebookEdit",
+        "matcher": "Bash|PowerShell|Edit|Write|MultiEdit|NotebookEdit|mcp__.*__archive_session|mcp__.*__set_setting",
         "hooks": [
           {
             "type": "command",
@@ -44,6 +44,35 @@
           }
         ]
       }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "C:/Users/amierashraf.hadi/.claude/hooks/overtime.js"
+            ],
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "C:/Users/amierashraf.hadi/.claude/hooks/overtime.js"
+            ],
+            "timeout": 10
+          }
+        ]
+      }
     ]
   },
   "statusLine": {
@@ -65,5 +94,6 @@
         "url": "https://github.com/eugeniughelbur/obsidian-second-brain.git"
       }
     }
-  }
+  },
+  "inputNeededNotifEnabled": true
 }

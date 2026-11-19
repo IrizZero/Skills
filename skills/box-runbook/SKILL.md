@@ -1,11 +1,35 @@
 ---
 name: box-runbook
-description: Maintenance and troubleshooting notes for this Windows box. Load when a gh/git call fails with an auth error, 403 or "Repository not found", when codex reports a missing model, stale model cache or needs upgrading, when a sandboxed codex shell call fails with "Access is denied", when chrome-devtools-axi needs installing, updating, attaching to real Chrome or dies with an engine error, or when `py` or a venv's `python.exe` fails to start from a long path.
+description: Facts, maintenance and troubleshooting for this Windows box. Load before cloning a repo, installing anything, using sqlcmd or writing under AppData, and for the box's repo locations, GitHub login, git identity, installed tools and paths. Also load when a gh/git call fails with an auth error, 403 or "Repository not found", when codex reports a missing model, stale model cache or needs upgrading, when a sandboxed codex shell call fails with "Access is denied", when chrome-devtools-axi needs installing, updating, attaching to real Chrome or dies with an engine error, or when `py` or a venv's `python.exe` fails to start from a long path.
 ---
 
 # Box runbook
 
-Local facts and procedures for this machine. Versions and dates are last-verified observations: check the installed version before treating one as a diagnostic fact. The standing rules live in `~/.claude/CLAUDE.md`; this file holds the detail that only matters when something breaks or needs maintenance.
+Local facts and procedures for this machine. Versions and dates are last-verified observations: check the installed version before treating one as a diagnostic fact. The standing rules live in `~/.claude/CLAUDE.md`; this file holds the box facts (repos, GitHub, installed tools) and the detail that matters when something breaks or needs maintenance.
+
+## Repos on this box
+
+- Every repo lives in `C:\git\<RepoName>`: one folder per repo, named exactly as on GitHub, case included. Current: `C:\git\ODS`, `C:\git\Second_Brain`, `C:\git\Skills`.
+- Clone new repos there, never into a session or scratch folder, `~`, Documents or OneDrive (OneDrive sync corrupts `.git`). Check the exact name first with `gh repo view <owner>/<repo> --json nameWithOwner` (it is `IrizZero/Skills`, not `skills`).
+- Clone: `git clone https://github.com/<owner>/<repo>.git C:\git\<RepoName>`, then confirm with `git -C C:\git\<RepoName> status -sb`.
+- Project work happens in a session opened on that repo's `C:\git\<RepoName>` folder, not in a setup or scratch session.
+- Run `C:\git\Skills\backup.ps1` only when I ask. It replaces the Skills repo's skills, agents, hooks and `snapshot/CLAUDE.md` with this box's `~/.claude`. This box's copies were edited on install (caveman removed, GitHub and hostname facts updated), so a backup changes the shared snapshot.
+
+## GitHub on this box
+
+- Tools: Git for Windows 2.55 (per-user, `%LOCALAPPDATA%\Programs\Git`) and GitHub CLI 2.102 (`C:\Program Files\GitHub CLI\gh.exe`), both installed with winget.
+- Git identity (global): `AmierAshrafw` / `{{OWNER_EMAIL}}`. Do not change it without asking.
+- `gh` is signed in as `AmierAshrafw` (keyring token, HTTPS, scopes `repo`, `read:org`, `gist`) and `gh auth setup-git` is done, so clone, pull and push to github.com need no prompt from Claude sessions, and plain `https://github.com/...` origin URLs work. That login exists only inside the Claude app (see the AppData note below): in the terminal panel, VS Code or Windows Terminal, `gh` is not signed in. I use GitHub Desktop there; leave it that way.
+- No `GITHUB_TOKEN` PAT, no Credential Manager accounts and no username in origin URLs on this box. `IrizZero` is my personal account; its repos are reached as a collaborator through `AmierAshrafw`. `gh-axi` is not installed, so use `gh`.
+- If auth breaks: run `gh auth login --hostname github.com --git-protocol https --web` in the background, read the one-time code from its output and give it to me with https://github.com/login/device. I can't easily answer prompts in the terminal panel.
+- A shell started before an install may not see `git` or `gh`. Refresh PATH: `$env:Path = [Environment]::GetEnvironmentVariable('Path','Machine') + ';' + [Environment]::GetEnvironmentVariable('Path','User')`.
+- Windows PowerShell 5.1 strips double quotes inside native-exe arguments, so `gh ... --jq` filters containing `"` break. Pipe the JSON into `ConvertFrom-Json` instead.
+
+## Tools and installs on this box
+
+- Installed 2026-10-20: Node 24 LTS, PowerShell 7.6 (Store copy plus the MSI in `C:\Program Files\PowerShell\7`; keep the MSI, Codex's sandbox cannot start the Store one, see `box-runbook`), .NET SDK 8 and 10, uv, Serena 2.1 (`uv tool`, Python 3.13, `~\.local\bin\serena.exe`), Codex CLI (npm), and pyright (npm) plus csharp-ls (dotnet tool) for the `pyright-lsp` / `csharp-lsp` plugins, Python 3.12.10 (per-user, with the `py` launcher), SQL Server 2025 Express (instance `RPS-MV-L-5101\SQLEXPRESS`, my account is sysadmin) with sqlcmd 1.10 (connect with `-S "lpc:RPS-MV-L-5101\SQLEXPRESS" -E -C`; the bare name times out) and SSMS 22, Visual Studio, and ffmpeg 9.0.1 (`C:\ffmpeg\bin` is a junction to the winget package folder). ODS dev setup details live in the ODS project memory. Not installed yet: Android Studio, gh-axi, chrome-devtools-axi.
+- Caveman is not used on this box.
+- The Claude app redirects AppData writes made by Claude's own shell into its private package folder (`%LOCALAPPDATA%\Packages\Claude_*\LocalCache`), so they are invisible outside the app. winget installs are not affected. Anything else that writes under `%APPDATA%` or `%LOCALAPPDATA%` (`npm install -g`, `uv tool install`, `gh auth login`, tool config files) goes in a `.ps1` run from the terminal panel with `powershell -NoProfile -ExecutionPolicy Bypass -File <script>`, because the terminal panel runs outside the redirect.
 
 ## GitHub auth
 

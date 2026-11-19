@@ -19,7 +19,7 @@ A Blocker that is not fixed (DEFER or DISMISS) is named in the handoff, and exec
 
 ## When
 
-- **In the flow:** writing-plans has saved the plan and finished its Self-Review; its Execution Handoff message has not been sent yet. The global CLAUDE.md "Superpowers flow hooks" section wires this.
+- **In the flow:** writing-plans has saved the plan and finished its Self-Review; its Execution Handoff message has not been sent yet. The global CLAUDE.md "Process" section wires this (Tier 2 plans only).
 - **Manual:** "review plan", "re-review plan", "plan-reviewer".
 - **Switches:** "skip review" turns it off for the session. "opus only" skips Sol. "cross-check" forces Sol.
 
