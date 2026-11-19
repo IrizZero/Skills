@@ -8,7 +8,7 @@ The intended flow: on a new machine you tell its Claude Code agent *"install my 
 
 | Path | What | Install handling |
 |------|------|------------------|
-| `skills/` | 17 personal skills (one folder each) | **additive copy** into `~/.claude/skills/` |
+| `skills/` | 18 personal skills (one folder each) | **additive copy** into `~/.claude/skills/` |
 | `agents/` | 3 subagent definitions (`*.md`) | **additive copy** into `~/.claude/agents/` |
 | `parked/` | superpowers add-ons parked 2026-10-20 (solution-auditor, yagni-guardian + the old flow hooks; plan-reviewer was restored with a YAGNI lens) | **not installed** - see `parked/README.md` |
 | `commands/` | slash commands (`*.md`) - none right now | **additive copy** into `~/.claude/commands/` |
@@ -85,7 +85,7 @@ If `node` is not on PATH, drop `statusLine` and `hooks` and tell the user.
 
 **5. Verify** against `manifest.json`:
 
-- `~/.claude/skills/` contains the 17 folders in `manifest.skills`
+- `~/.claude/skills/` contains the 18 folders in `manifest.skills`
 - `~/.claude/agents/` contains 3 `*.md`
 - `~/.claude/hooks/` contains `guard.js` and `serena-notice.js`, and `~/.claude/statusline.js` exists
 - `node ~/.claude/hooks/guard.js` with an empty stdin exits 0 and prints nothing

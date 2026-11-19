@@ -1,0 +1,27 @@
+{
+  "pm_transcript_dir": "~/.claude/projects/<folder-of-the-pm-sessions>",
+  "build_transcript_dir": "~/.claude/projects/<folder-of-the-build-sessions>",
+  "pm_sessions": {
+    "PM1": ["<transcript-uuid-1>", "<transcript-uuid-2>"],
+    "PM2": ["<transcript-uuid-3>"]
+  },
+  "build_titles": {
+    "<title text of a build session>": "b1",
+    "<title text of another build session>": "b2"
+  },
+  "module_name": "<python module the project runs with -m, or empty>",
+  "utc_offset_hours": 0,
+  "paperwork_match": [
+    "docs[/\\\\]notes[/\\\\]",
+    "[/\\\\]memory[/\\\\]"
+  ],
+  "paperwork_group": [
+    "docs[/\\\\]notes[/\\\\].*",
+    "[/\\\\]memory[/\\\\].*"
+  ],
+  "hands_on_paths": ["<folder-name-of-the-work-checkout>"],
+  "hands_on_excluded": ["step-\\d+", "README", "spec\\.md"],
+  "paperwork_write_pattern": "lessons-log|/memory/|MEMORY\\.md|spec\\.md",
+  "report_read_pattern": "step-\\d+[^/]*\\.md|README",
+  "paperwork_read_pattern": "docs/notes|/memory/|spec\\.md"
+}
