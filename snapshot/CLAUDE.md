@@ -58,6 +58,7 @@ Use for audit `USER:` fields, work attribution, task ownership and "current user
 - **Bugs:** reproduce end-to-end, as close to how a real user hits it as possible, and confirm the real failure before proposing a fix. If it truly cannot be reproduced (prod-only, intermittent), say so and state the evidence and uncertainty behind the fix you propose. Before editing a shared function, find every caller and fix it once where they all route, not only on the path the report names.
 - **Quality over estimated cost:** do not let estimated dev cost push you toward a low-quality shortcut; AI implementation is far faster than the human estimates you learned from. Prefer robust, simple, maintainable designs. That is not licence for speculative features: YAGNI still applies.
 - **Reuse before writing:** before adding code, check in order: already in this codebase (helper, util, type, pattern) -> stdlib -> native platform feature (DB constraint, native input, CSS) -> an already-installed dependency. Write new code only when none fits; never add a dependency for what a few lines do. Why: re-implementing what already lives a few files over is the most common agent slop, and every new dependency is upkeep.
+- **GPU check, early (2026-11-20):** when a project does heavy computing (AI models, video, large image work), at its first real run test that the graphics card is actually used, by watching it during the run (`nvidia-smi`), not by reading the code. Tell me which steps run on the card and which on the processor. If it is not used, say why and what it would take. Why: the change detection POC ran for days before anyone told me whether it used the card.
 - **Compaction:** when compacting, keep the modified-file list, worktree path and branch, test commands run with their results, and open owner gates or approvals.
 - **Reviewers run on Opus:** every review or adversarial-check subagent (superpowers task reviews and re-reviews included) runs on Opus; cheaper models only implement or search.
 
@@ -147,6 +148,11 @@ Load the `codex-exec` skill before any `codex exec` run: command shape, stdin ha
   To make Heart sound human, write the text as spoken: contractions ("I'm", "we'll"), one idea per sentence, and the right end mark (a question mark makes the tone rise).
   Pauses come from punctuation: a comma is short, a full stop longer, "..." a hesitation. Avoid one- or two-word lines on their own; speed 0.9 to 0.95 sounds calmer.
   Capitals, SSML, emotion tags and the demo's `[word](-1)` stress markers do nothing (the markers are read aloud).
+  Learned on the DAMAi + BIDS film (2026-11-20):
+  A sentence ends on a falling pitch only when it is the last thing in the text Kokoro is given; to make a line sound final, end the passage there and record the rest separately.
+  A full stop does not always give a pause; "..." forces one.
+  Single words spaced with "..." come out flat. Offer a natural list reading as well and let me pick.
+  Avoid near-identical words close together ("it's ... its"); write one of them out ("it is").
 
 ## Browser checks
 
